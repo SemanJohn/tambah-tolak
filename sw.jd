@@ -1,4 +1,4 @@
-const CACHE_NAME = 'permainan-tambah-v1.4'; // Naikkan setiap kali kemas kini
+const CACHE_NAME = 'permainan-tambah-v1.5';
 
 const urlsToCache = [
   './',
@@ -22,6 +22,12 @@ self.addEventListener('activate', event => {
     })
   );
   return self.clients.claim();
+});
+
+self.addEventListener('message', event => {
+  if (event.data === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
 
 self.addEventListener('fetch', event => {
