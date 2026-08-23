@@ -57,6 +57,15 @@ body {
   display:flex; justify-content:space-between; align-items:center;
   background:#eef2ff; padding:8px 12px; border-radius:10px;
 }
+.setting-group { margin:14px 0; text-align:left; }
+.setting-label { font-size:0.85rem; font-weight:700; color:#475569; margin-bottom:6px; }
+.chip-row { display:flex; flex-wrap:wrap; gap:6px; }
+.chip {
+  border:2px solid #c7d2fe; background:#eef2ff; color:#4338ca; font-weight:700; font-size:0.9rem;
+  padding:8px 12px; border-radius:10px; cursor:pointer; transition:transform 0.15s, background 0.2s, border-color 0.2s;
+}
+.chip:active { transform:scale(0.94); }
+.chip.selected { background:linear-gradient(135deg,#4f46e5 0%,#7c3aed 100%); border-color:#4338ca; color:white; }
 .board-right { display:flex; align-items:center; gap:6px; }
 #levelLabel { background:white; padding:4px 10px; border-radius:8px; font-size:0.85rem; }
 .mode-toggle {
@@ -83,19 +92,21 @@ body {
 .answer-inline-input.active-input { border-color:#4f46e5; box-shadow:0 0 0 3px rgba(79,70,229,0.2); background:#f0f4ff; }
 .vertical-form-editable { font-family:'Courier New', Courier, monospace; font-weight:bold; color:#1e293b; text-align:left; background:white; padding:10px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.05); }
 .vertical-row { display:flex; justify-content:flex-end; align-items:center; gap:2px; margin:2px 0; }
-.cell { width:32px; height:40px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; border-radius:4px; }
+.vertical-form-editable { --cw:32px; --ch:40px; --fs:1.5rem; }
+.cell { width:var(--cw); height:var(--ch); display:flex; align-items:center; justify-content:center; font-size:var(--fs); border-radius:4px; }
 .digit-display { background:transparent; color:#1e293b; user-select:none; }
 
 /* Kotak jawapan */
 .digit-input {
+  font-size:var(--fs);
   border:2px solid #cbd5e1; background:white; color:#1e293b; font-weight:bold; font-size:1.5rem;
-  text-align:center; padding:0; margin:0; outline:none; width:32px; height:40px; border-radius:4px;
+  text-align:center; padding:0; margin:0; outline:none; width:var(--cw); height:var(--ch); border-radius:4px;
   transition:border-color 0.2s, box-shadow 0.2s, background 0.2s;
 }
 /* Kotak bawa — kini boleh diedit oleh murid */
 .carry-input {
-  border:2px dashed #fbbf24; background:#fffbeb; color:#d97706; font-weight:bold; font-size:1.05rem;
-  text-align:center; padding:0; margin:0; outline:none; width:32px; height:30px; border-radius:4px;
+  border:2px dashed #fbbf24; background:#fffbeb; color:#d97706; font-weight:bold; font-size:calc(var(--fs) * 0.7);
+  text-align:center; padding:0; margin:0; outline:none; width:var(--cw); height:calc(var(--ch) * 0.75); border-radius:4px;
   transition:border-color 0.2s, box-shadow 0.2s, background 0.2s;
 }
 .digit-input.active-input { border-color:#4f46e5; box-shadow:0 0 0 3px rgba(79,70,229,0.2); background:#f0f4ff; }
@@ -107,7 +118,7 @@ body {
 
 .plus-cell { font-size:1.5rem; color:#1e293b; user-select:none; }
 .line-row { border-top:3px solid #1e293b; margin:5px 0; }
-.carry-row-spacer { width:32px; height:30px; }
+.carry-row-spacer { width:var(--cw); height:calc(var(--ch) * 0.75); }
 .numpad { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-bottom:10px; }
 .numpad-btn {
   background:linear-gradient(135deg,#e0e7ff 0%,#c7d2fe 100%); color:#1e293b; border:1px solid #a5b4fc;
@@ -145,9 +156,7 @@ body {
   .simple-question { font-size:1.4rem; }
   .vertical-form-editable { font-size:1.2rem; }
   .numpad-btn { padding:6px 0; font-size:1.1rem; }
-  .cell { width:28px; height:34px; font-size:1.2rem; }
-  .digit-input { width:28px; height:34px; font-size:1.2rem; }
-  .carry-input, .carry-row-spacer { width:28px; height:26px; font-size:0.95rem; }
+  .vertical-form-editable { --cw:28px; --ch:34px; --fs:1.2rem; }
   .answer-inline-input { width:60px; height:40px; font-size:1.3rem; }
 }
 @media (prefers-reduced-motion: reduce) { * { animation:none !important; transition:none !important; } }
@@ -155,7 +164,7 @@ body {
 </head>
 <body>
 <div class="game-container">
-  <div class="version-label" id="versionLabel">Versi 2.2</div>
+  <div class="version-label" id="versionLabel">Versi 3.0</div>
 
   <div id="menuSection" class="section active">
     <div class="menu-mascot">
@@ -171,12 +180,49 @@ body {
       </svg>
     </div>
     <h1 class="menu-title">🔢 Tambah Ceria!</h1>
-    <p class="menu-subtitle">Pilih tahap kesukaran untuk mula bermain:</p>
+    <p class="menu-subtitle">Pilih menu untuk mula bermain:</p>
     <div class="level-buttons">
-      <button class="level-btn" onclick="startLevel('easy')">🌱 Mudah (1–10)</button>
-      <button class="level-btn" onclick="startLevel('moderate')">🚀 Sederhana (1–20)</button>
-      <button class="level-btn" onclick="startLevel('hard')">🧠 Sukar (bentuk lazim)</button>
+      <button class="level-btn" onclick="showSection('basicSection')">➕ Tambah Asas</button>
+      <button class="level-btn" onclick="showSection('plusSection')">🧮 Tambah Lagi</button>
     </div>
+  </div>
+
+  <div id="basicSection" class="section">
+    <h1 class="menu-title">➕ Tambah Asas</h1>
+    <p class="menu-subtitle">Pilih julat nombor:</p>
+    <div class="level-buttons">
+      <button class="level-btn" onclick="startLevel('easy')">🌱 Mudah — nombor hingga 10</button>
+      <button class="level-btn" onclick="startLevel('moderate')">🚀 Sederhana — nombor hingga 20</button>
+    </div>
+    <button class="back-btn" onclick="showSection('menuSection')">← Menu Utama</button>
+  </div>
+
+  <div id="plusSection" class="section">
+    <h1 class="menu-title">🧮 Tambah Lagi</h1>
+    <p class="menu-subtitle">Tetapkan soalan bentuk lazim:</p>
+
+    <div class="setting-group">
+      <div class="setting-label">Nombor hingga</div>
+      <div class="chip-row" id="rangeChips">
+        <button class="chip selected" data-digits="2" onclick="selectRange(this)">100</button>
+        <button class="chip" data-digits="3" onclick="selectRange(this)">1 000</button>
+        <button class="chip" data-digits="4" onclick="selectRange(this)">10 000</button>
+        <button class="chip" data-digits="5" onclick="selectRange(this)">100 000</button>
+        <button class="chip" data-digits="6" onclick="selectRange(this)">1 000 000</button>
+        <button class="chip" data-digits="7" onclick="selectRange(this)">10 000 000</button>
+      </div>
+    </div>
+
+    <div class="setting-group">
+      <div class="setting-label">Jenis tambah</div>
+      <div class="chip-row" id="carryChips">
+        <button class="chip selected" data-carry="tanpa" onclick="selectCarry(this)">Tanpa lebihan</button>
+        <button class="chip" data-carry="ada" onclick="selectCarry(this)">Ada lebihan</button>
+      </div>
+    </div>
+
+    <button class="submit-btn" style="margin-top:8px;" onclick="startAdvanced()">🧠 Mula</button>
+    <button class="back-btn" onclick="showSection('menuSection')">← Menu Utama</button>
   </div>
 
   <div id="gameSection" class="section">
@@ -223,6 +269,33 @@ function getObjectSVG(type) {
 }
 function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 
+// Jana dua nombor 'digits' digit.
+// wantCarry=false : setiap pasangan digit berjumlah kurang 10 (tiada bawa langsung)
+// wantCarry=true  : sekurang-kurangnya satu lajur berjumlah 10 ke atas
+function generateHardPair(digits, wantCarry) {
+  const toNumber = arr => parseInt(arr.slice().reverse().join(''), 10);
+  for (let attempt = 0; attempt < 500; attempt++) {
+    const d1 = [], d2 = [];
+    let anyCarry = false;
+    for (let i = 0; i < digits; i++) {
+      const leading = (i === digits - 1);
+      let a, b;
+      if (wantCarry) {
+        a = randInt(leading ? 1 : 0, 9);
+        b = randInt(leading ? 1 : 0, 9);
+      } else {
+        a = randInt(leading ? 1 : 0, leading ? 8 : 9);
+        b = randInt(leading ? 1 : 0, 9 - a);
+      }
+      if (a + b >= 10) anyCarry = true;
+      d1.push(a); d2.push(b);
+    }
+    if (wantCarry && !anyCarry) continue;
+    return [toNumber(d1), toNumber(d2)];
+  }
+  return [randInt(10, 89), randInt(10, 89)];
+}
+
 // ==================== PEMBOLEH UBAH ====================
 let currentLevel = 'easy';
 let currentQuestion = null;
@@ -231,6 +304,8 @@ let scoredCorrect = false;
 const icons = ['apple', 'star', 'car', 'balloon'];
 let currentIcon = 'apple';
 let displayMode = 'gambar';   // 'gambar' atau 'nombor' (aras mudah & sederhana sahaja)
+let advDigits = 2;            // bilangan digit operan untuk 'Tambah Lagi'
+let advCarry = 'tanpa';       // 'tanpa' atau 'ada' lebihan
 let activeInput = null;
 let locked = false;
 
@@ -245,21 +320,48 @@ let expectedCarry = [];    // bawa masuk ke setiap lajur
 let steps = [];            // simpanan turutan penuh (rujukan sahaja)
 let trail = [];            // laluan sebenar murid: kotak yang telah dibuka
 
-const PLACE_NAMES = ['sa', 'puluh', 'ratus', 'ribu'];
+const PLACE_NAMES = ['sa', 'puluh', 'ratus', 'ribu', 'puluh ribu', 'ratus ribu', 'juta', 'puluh juta'];
 function placeName(col) { return PLACE_NAMES[col] || `tempat ${col + 1}`; }
 
 // ==================== PAPARAN ====================
 function showSection(id) {
-  document.getElementById('menuSection').classList.remove('active');
-  document.getElementById('gameSection').classList.remove('active');
+  document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+}
+
+// --- Tetapan menu 'Tambah Lagi' ---
+function selectRange(btn) {
+  document.querySelectorAll('#rangeChips .chip').forEach(c => c.classList.remove('selected'));
+  btn.classList.add('selected');
+  advDigits = Number(btn.dataset.digits);
+}
+
+function selectCarry(btn) {
+  document.querySelectorAll('#carryChips .chip').forEach(c => c.classList.remove('selected'));
+  btn.classList.add('selected');
+  advCarry = btn.dataset.carry;
+}
+
+function rangeLabel(digits) {
+  return Number('1' + '0'.repeat(digits)).toLocaleString('ms-MY').replace(/,/g, ' ');
+}
+
+function startAdvanced() {
+  currentLevel = 'hard';
+  score = 0;
+  document.getElementById('score').textContent = score;
+  document.getElementById('levelLabel').textContent =
+    `🧮 ${rangeLabel(advDigits)} · ${advCarry === 'ada' ? 'ada lebihan' : 'tanpa lebihan'}`;
+  document.getElementById('modeToggle').style.display = 'none';
+  showSection('gameSection');
+  generateQuestion();
 }
 
 function startLevel(level) {
   currentLevel = level;
   score = 0;
   document.getElementById('score').textContent = score;
-  const names = { easy: '🌱 Mudah (1–10)', moderate: '🚀 Sederhana (1–20)', hard: '🧠 Bentuk lazim' };
+  const names = { easy: '🌱 Hingga 10', moderate: '🚀 Hingga 20', hard: '🧠 Bentuk lazim' };
   document.getElementById('levelLabel').textContent = names[level];
   document.getElementById('modeToggle').style.display = (level === 'hard') ? 'none' : 'inline-block';
   updateModeToggle();
@@ -268,7 +370,7 @@ function startLevel(level) {
 }
 
 function backToMenu() {
-  showSection('menuSection');
+  showSection(currentLevel === 'hard' ? 'plusSection' : 'basicSection');
   currentQuestion = null;
   setFeedback('', '');
   document.getElementById('hintLine').textContent = '';
@@ -280,12 +382,13 @@ function backToMenu() {
 function updateModeToggle() {
   const btn = document.getElementById('modeToggle');
   if (displayMode === 'gambar') {
-    btn.textContent = '🎈 Gambar';
-    btn.classList.remove('number-mode');
-    btn.title = 'Tukar ke paparan nombor';
-  } else {
+    // Soalan sedang bergambar → butang menawarkan paparan nombor
     btn.textContent = '🔢 Nombor';
     btn.classList.add('number-mode');
+    btn.title = 'Tukar ke paparan nombor';
+  } else {
+    btn.textContent = '🎈 Gambar';
+    btn.classList.remove('number-mode');
     btn.title = 'Tukar ke paparan gambar';
   }
 }
@@ -433,13 +536,8 @@ function updateHint() {
 function generateQuestion() {
   let n1, n2;
   if (currentLevel === 'hard') {
-    const wantCarry = Math.random() < 0.6;
-    let guard = 0;
-    do {
-      n1 = randInt(10, 89);
-      n2 = randInt(10, 89);
-      guard++;
-    } while (guard < 200 && (((n1 % 10) + (n2 % 10)) >= 10) !== wantCarry);
+    const pair = generateHardPair(advDigits, advCarry === 'ada');
+    n1 = pair[0]; n2 = pair[1];
   } else {
     const maxSum = currentLevel === 'easy' ? 10 : 20;
     n1 = randInt(1, maxSum - 1);
@@ -525,6 +623,14 @@ function buildVerticalForm(n1, n2) {
   const cols = baseCols + 1;
   const form = document.createElement('div');
   form.className = 'vertical-form-editable';
+
+  // Kecilkan sel apabila lajur bertambah supaya muat pada skrin telefon
+  const totalCells = baseCols + 2;                       // termasuk lajur tambahan & ruang tanda '+'
+  const available = Math.min(window.innerWidth - 70, 430);
+  const cw = Math.max(16, Math.min(32, Math.floor(available / totalCells) - 3));
+  form.style.setProperty('--cw', cw + 'px');
+  form.style.setProperty('--ch', Math.round(cw * 1.25) + 'px');
+  form.style.setProperty('--fs', (cw / 21).toFixed(2) + 'rem');
 
   // --- Baris bawa: kotak input yang boleh diedit murid ---
   const carryRow = document.createElement('div'); carryRow.className = 'vertical-row';
