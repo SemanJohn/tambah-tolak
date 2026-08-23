@@ -52,68 +52,78 @@
       pointer-events: none;
     }
 
-    /* Kepala dengan maskot dan tajuk */
-    .header {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      margin-bottom: 15px;
+    /* Sembunyikan bahagian yang tidak aktif */
+    .section {
+      display: none;
     }
-    .mascot {
-      width: 60px;
-      height: 60px;
+    .section.active {
+      display: block;
+      animation: fadeIn 0.25s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Menu Section */
+    .menu-mascot {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 10px;
       animation: bounce 2s infinite;
     }
     @keyframes bounce {
       0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-6px); }
-    }
-    h1 {
-      color: #1e293b;
-      font-size: 1.5rem;
-      margin: 0;
+      50% { transform: translateY(-8px); }
     }
 
-    /* Butang pilih tahap */
+    .menu-title {
+      color: #1e293b;
+      font-size: 1.7rem;
+      margin-bottom: 10px;
+    }
+
+    .menu-subtitle {
+      color: #475569;
+      margin-bottom: 20px;
+    }
+
     .level-buttons {
       display: flex;
-      gap: 8px;
-      justify-content: center;
-      margin-bottom: 15px;
-      flex-wrap: wrap;
+      flex-direction: column;
+      gap: 12px;
+      margin: 15px 0;
     }
     .level-btn {
       border: none;
-      padding: 10px 14px;
-      font-size: 0.95rem;
+      padding: 16px;
+      font-size: 1.2rem;
       font-weight: bold;
-      border-radius: 10px;
+      border-radius: 16px;
       cursor: pointer;
       transition: transform 0.2s, box-shadow 0.2s;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       display: flex;
       align-items: center;
-      gap: 5px;
-      white-space: nowrap;
+      justify-content: center;
+      gap: 10px;
+      color: white;
     }
     .level-btn:nth-child(1) {
       background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-      color: white;
     }
     .level-btn:nth-child(2) {
       background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-      color: white;
     }
     .level-btn:nth-child(3) {
       background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-      color: white;
     }
     .level-btn:active {
-      transform: scale(0.94);
+      transform: scale(0.96);
     }
 
-    /* Papan skor */
+    /* Game Section */
     .score-board {
       font-size: 1rem;
       font-weight: bold;
@@ -127,7 +137,6 @@
       border-radius: 10px;
     }
 
-    /* Kawasan soalan */
     .question-area {
       background: #f8fafc;
       border: 2px dashed #cbd5e1;
@@ -181,7 +190,6 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     }
 
-    /* Kotak input jawapan */
     .answer-input-group {
       display: flex;
       gap: 8px;
@@ -206,7 +214,6 @@
       box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
     }
 
-    /* Numpad yang lebih kecil & kemas */
     .numpad {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -243,7 +250,6 @@
       color: white;
     }
 
-    /* Butang semak */
     .submit-btn {
       background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
       color: white;
@@ -274,6 +280,22 @@
       font-weight: bold;
       cursor: pointer;
       box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    }
+
+    .back-btn {
+      background: #64748b;
+      color: white;
+      border: none;
+      padding: 10px;
+      font-size: 0.9rem;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 10px;
+      width: 100%;
+      transition: background 0.2s;
+    }
+    .back-btn:active {
+      background: #475569;
     }
 
     .feedback {
@@ -325,11 +347,11 @@
       100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
     }
 
-    /* Responsif untuk skrin kecil */
+    /* Responsif */
     @media (max-width: 400px) {
       .game-container { padding: 15px 10px; }
-      h1 { font-size: 1.3rem; }
-      .level-btn { padding: 8px 10px; font-size: 0.85rem; }
+      .menu-title { font-size: 1.4rem; }
+      .level-btn { padding: 12px; font-size: 1rem; }
       .simple-question { font-size: 1.4rem; }
       .vertical-form { font-size: 1.2rem; }
       .numpad-btn { padding: 6px 0; font-size: 1.1rem; }
@@ -341,11 +363,11 @@
 
 <div class="game-container">
   <!-- Penunjuk versi -->
-  <div class="version-label" id="versionLabel">Versi 1.1</div>
+  <div class="version-label" id="versionLabel">Versi 1.2</div>
 
-  <!-- Kepala dengan maskot -->
-  <div class="header">
-    <div class="mascot">
+  <!-- ==================== MENU SECTION ==================== -->
+  <div id="menuSection" class="section active">
+    <div class="menu-mascot">
       <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
         <circle cx="50" cy="45" r="35" fill="#FFD93D" stroke="#F9A825" stroke-width="3"/>
         <circle cx="40" cy="40" r="5" fill="white"/>
@@ -359,56 +381,52 @@
         <text x="65" y="90" font-size="18" fill="#1e293b" font-weight="bold">=</text>
       </svg>
     </div>
-    <h1>🔢 Tambah Ceria!</h1>
+
+    <h1 class="menu-title">🔢 Tambah Ceria!</h1>
+    <p class="menu-subtitle">Pilih tahap kesukaran untuk mula bermain:</p>
+
+    <div class="level-buttons">
+      <button class="level-btn" onclick="startLevel('easy')">🌱 Mudah (1–10)</button>
+      <button class="level-btn" onclick="startLevel('moderate')">🚀 Sederhana (1–20)</button>
+      <button class="level-btn" onclick="startLevel('hard')">🧠 Sukar (1–100, bentuk lazim)</button>
+    </div>
   </div>
 
-  <!-- Butang pilih tahap -->
-  <div class="level-buttons">
-    <button class="level-btn" onclick="startLevel('easy')">🌱 Mudah (1–10)</button>
-    <button class="level-btn" onclick="startLevel('moderate')">🚀 Sederhana (1–20)</button>
-    <button class="level-btn" onclick="startLevel('hard')">🧠 Sukar (1–100)</button>
+  <!-- ==================== GAME SECTION ==================== -->
+  <div id="gameSection" class="section">
+    <div class="score-board">
+      <span>🏆 Skor: <span id="score">0</span></span>
+      <span id="levelLabel" style="background:white; padding:4px 10px; border-radius:8px;"></span>
+    </div>
+
+    <div class="question-area" id="questionArea"></div>
+
+    <div class="answer-input-group">
+      <input type="text" id="answerInput" inputmode="numeric" pattern="[0-9]*" placeholder="Jawapan" autocomplete="off">
+    </div>
+
+    <div class="numpad">
+      <button class="numpad-btn" onclick="pressDigit('1')">1</button>
+      <button class="numpad-btn" onclick="pressDigit('2')">2</button>
+      <button class="numpad-btn" onclick="pressDigit('3')">3</button>
+      <button class="numpad-btn" onclick="pressDigit('4')">4</button>
+      <button class="numpad-btn" onclick="pressDigit('5')">5</button>
+      <button class="numpad-btn" onclick="pressDigit('6')">6</button>
+      <button class="numpad-btn" onclick="pressDigit('7')">7</button>
+      <button class="numpad-btn" onclick="pressDigit('8')">8</button>
+      <button class="numpad-btn" onclick="pressDigit('9')">9</button>
+      <button class="numpad-btn special" onclick="pressBackspace()">⌫</button>
+      <button class="numpad-btn" onclick="pressDigit('0')">0</button>
+      <button class="numpad-btn special clear" onclick="clearAnswer()">C</button>
+    </div>
+
+    <button class="submit-btn" onclick="checkAnswer()">✔ Semak</button>
+
+    <div class="feedback" id="feedbackText"></div>
+
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Soalan Seterusnya ➔</button>
+    <button class="back-btn" onclick="backToMenu()">← Menu Utama</button>
   </div>
-
-  <!-- Papan skor -->
-  <div class="score-board">
-    <span>🏆 Skor: <span id="score">0</span></span>
-    <span id="levelLabel" style="background:white; padding:4px 10px; border-radius:8px;">🌱 Mudah</span>
-  </div>
-
-  <!-- Kawasan soalan -->
-  <div class="question-area" id="questionArea">
-    <p style="color:#64748b;">Sila pilih tahap untuk mula.</p>
-  </div>
-
-  <!-- Input jawapan -->
-  <div class="answer-input-group">
-    <input type="text" id="answerInput" inputmode="numeric" pattern="[0-9]*" placeholder="Jawapan" autocomplete="off">
-  </div>
-
-  <!-- Numpad kecil -->
-  <div class="numpad">
-    <button class="numpad-btn" onclick="pressDigit('1')">1</button>
-    <button class="numpad-btn" onclick="pressDigit('2')">2</button>
-    <button class="numpad-btn" onclick="pressDigit('3')">3</button>
-    <button class="numpad-btn" onclick="pressDigit('4')">4</button>
-    <button class="numpad-btn" onclick="pressDigit('5')">5</button>
-    <button class="numpad-btn" onclick="pressDigit('6')">6</button>
-    <button class="numpad-btn" onclick="pressDigit('7')">7</button>
-    <button class="numpad-btn" onclick="pressDigit('8')">8</button>
-    <button class="numpad-btn" onclick="pressDigit('9')">9</button>
-    <button class="numpad-btn special" onclick="pressBackspace()">⌫</button>
-    <button class="numpad-btn" onclick="pressDigit('0')">0</button>
-    <button class="numpad-btn special clear" onclick="clearAnswer()">C</button>
-  </div>
-
-  <!-- Butang semak -->
-  <button class="submit-btn" onclick="checkAnswer()">✔ Semak</button>
-
-  <!-- Maklum balas -->
-  <div class="feedback" id="feedbackText"></div>
-
-  <!-- Butang seterusnya -->
-  <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Soalan Seterusnya ➔</button>
 </div>
 
 <script>
@@ -452,7 +470,13 @@
   const icons = ['apple', 'star', 'car', 'balloon'];
   let currentIcon = 'apple';
 
-  // ---------- Fungsi Mula Tahap ----------
+  // ---------- Fungsi Paparan ----------
+  function showSection(sectionId) {
+    document.getElementById('menuSection').classList.remove('active');
+    document.getElementById('gameSection').classList.remove('active');
+    document.getElementById(sectionId).classList.add('active');
+  }
+
   function startLevel(level) {
     currentLevel = level;
     score = 0;
@@ -464,7 +488,17 @@
     };
     document.getElementById('levelLabel').textContent = levelNames[level];
     answered = false;
+    showSection('gameSection');
     generateQuestion();
+  }
+
+  function backToMenu() {
+    showSection('menuSection');
+    currentQuestion = null;
+    document.getElementById('feedbackText').textContent = '';
+    document.getElementById('feedbackText').className = 'feedback';
+    document.getElementById('nextBtn').style.display = 'none';
+    document.getElementById('answerInput').value = '';
   }
 
   // ---------- Numpad & Input ----------
