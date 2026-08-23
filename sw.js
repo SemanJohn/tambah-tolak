@@ -1,55 +1,69 @@
-const CACHE_NAME = 'permainan-tambah-v1.7';
+// sw.js — Permainan Tambah Ceria
+// PENTING: tukar CACHE_VERSION setiap kali index.html dikemas kini.
+const CACHE_VERSION = 'v1.9';
+const CACHE_NAME = `tambah-ceria-${CACHE_VERSION}`;
 
-const urlsToCache = [
+const PRECACHE_URLS = [
   './',
   './index.html'
 ];
 
-self.addEventListener('install', event => {
-  self.skipWaiting();
+// Pasang: simpan fail asas, terus sedia untuk ambil alih
+self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(urlsToCache))
+      .then(cache => cache.addAll(PRECACHE_URLS))
+      .then(() => self.skipWaiting())
+      .catch(err => console.warn('Precache gagal:', err))
   );
 });
 
-self.addEventListener('activate', event => {
+// Aktif: buang semua cache versi lama
+self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then(keys => {
-      return Promise.all(
-        keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
-      );
-    })
+    caches.keys()
+      .then(keys => Promise.all(
+        keys.filter(k => k.startsWith('tambah-ceria-') && k !== CACHE_NAME)
+            .map(k => caches.delete(k))
+      ))
+      .then(() => self.clients.claim())
   );
-  return self.clients.claim();
 });
 
-self.addEventListener('message', event => {
-  if (event.data === 'SKIP_WAITING') {
+// Terima kedua-dua format mesej supaya SW baharu tidak tersangkut
+self.addEventListener('message', (event) => {
+  const data = event.data;
+  if (data === 'SKIP_WAITING' || (data && data.type === 'SKIP_WAITING')) {
     self.skipWaiting();
   }
 });
 
-self.addEventListener('fetch', event => {
-  if (event.request.mode === 'navigate') {
+self.addEventListener('fetch', (event) => {
+  const req = event.request;
+  if (req.method !== 'GET') return;
+  if (new URL(req.url).origin !== self.location.origin) return;
+
+  // Dokumen (index.html): rangkaian dahulu, cache sebagai sandaran offline.
+  // Ini yang memastikan murid sentiasa dapat versi terbaharu bila ada internet.
+  if (req.mode === 'navigate' || req.destination === 'document') {
     event.respondWith(
-      fetch(event.request)
-        .then(response => {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put('./index.html', clone));
-          return response;
+      fetch(req)
+        .then(res => {
+          const copy = res.clone();
+          caches.open(CACHE_NAME).then(c => c.put(req, copy));
+          return res;
         })
-        .catch(() => caches.match('./index.html'))
+        .catch(() => caches.match(req).then(r => r || caches.match('./index.html')))
     );
-  } else {
-    event.respondWith(
-      caches.match(event.request).then(cachedResponse => {
-        const fetchPromise = fetch(event.request).then(networkResponse => {
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, networkResponse.clone()));
-          return networkResponse;
-        });
-        return cachedResponse || fetchPromise;
-      })
-    );
+    return;
   }
+
+  // Aset lain: cache dahulu, kemudian rangkaian
+  event.respondWith(
+    caches.match(req).then(cached => cached || fetch(req).then(res => {
+      const copy = res.clone();
+      caches.open(CACHE_NAME).then(c => c.put(req, copy));
+      return res;
+    }).catch(() => cached))
+  );
 });
