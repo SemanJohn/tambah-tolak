@@ -22,109 +22,106 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      padding: 15px;
+      padding: 10px;
       touch-action: manipulation;
       -webkit-tap-highlight-color: transparent;
     }
 
     .game-container {
       background: white;
-      border-radius: 30px;
+      border-radius: 24px;
       box-shadow: 0 20px 40px rgba(0,0,0,0.2);
       width: 100%;
-      max-width: 500px;
-      padding: 25px 20px;
+      max-width: 480px;
+      padding: 20px 15px;
       text-align: center;
       position: relative;
       overflow: hidden;
     }
 
-    .screen {
-      display: none;
-    }
-    .screen.active {
-      display: block;
-      animation: fadeIn 0.3s ease;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Mascot */
-    .mascot {
-      width: 100px;
-      height: 100px;
-      margin: 0 auto 15px;
-      animation: bounce 2s infinite;
-    }
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
-    }
-
-    h1 {
-      color: #1e293b;
-      font-size: 1.8rem;
-      margin-bottom: 10px;
-    }
-
-    .level-buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin: 20px 0;
-    }
-
-    .level-btn {
-      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-      color: white;
-      border: none;
-      padding: 16px;
-      font-size: 1.2rem;
-      font-weight: bold;
-      border-radius: 16px;
-      cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
-      box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+    /* Kepala dengan maskot dan tajuk */
+    .header {
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 10px;
+      margin-bottom: 15px;
+    }
+    .mascot {
+      width: 60px;
+      height: 60px;
+      animation: bounce 2s infinite;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+    h1 {
+      color: #1e293b;
+      font-size: 1.5rem;
+      margin: 0;
+    }
+
+    /* Butang pilih tahap */
+    .level-buttons {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+    .level-btn {
+      border: none;
+      padding: 10px 14px;
+      font-size: 0.95rem;
+      font-weight: bold;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+    }
+    .level-btn:nth-child(1) {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white;
     }
     .level-btn:nth-child(2) {
       background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-      box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+      color: white;
     }
     .level-btn:nth-child(3) {
       background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-      box-shadow: 0 5px 15px rgba(67, 233, 123, 0.4);
+      color: white;
     }
     .level-btn:active {
-      transform: scale(0.96);
+      transform: scale(0.94);
     }
 
+    /* Papan skor */
     .score-board {
-      font-size: 1.2rem;
+      font-size: 1rem;
       font-weight: bold;
       color: #4f46e5;
-      margin-bottom: 15px;
+      margin-bottom: 10px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       background: #eef2ff;
-      padding: 10px 15px;
-      border-radius: 12px;
+      padding: 8px 12px;
+      border-radius: 10px;
     }
 
+    /* Kawasan soalan */
     .question-area {
       background: #f8fafc;
-      border: 3px dashed #cbd5e1;
-      border-radius: 20px;
-      padding: 20px 10px;
-      margin-bottom: 15px;
-      min-height: 100px;
+      border: 2px dashed #cbd5e1;
+      border-radius: 16px;
+      padding: 15px 8px;
+      margin-bottom: 10px;
+      min-height: 80px;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -133,93 +130,99 @@
     }
 
     .simple-question {
-      font-size: 2rem;
+      font-size: 1.6rem;
       font-weight: 700;
       color: #1e293b;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       flex-wrap: wrap;
       justify-content: center;
     }
-
     .object-group {
       display: inline-flex;
-      gap: 5px;
+      gap: 3px;
       align-items: center;
     }
     .object-icon {
-      width: 30px;
-      height: 30px;
+      width: 25px;
+      height: 25px;
     }
     .operator {
-      font-size: 1.8rem;
+      font-size: 1.5rem;
       color: #f59e0b;
       font-weight: bold;
     }
 
     .vertical-form {
       font-family: 'Courier New', Courier, monospace;
-      font-size: 1.6rem;
+      font-size: 1.4rem;
       font-weight: bold;
       color: #1e293b;
       white-space: pre;
       line-height: 1.4;
       text-align: left;
       background: white;
-      padding: 15px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      padding: 12px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     }
 
-    /* Paparan jawapan */
-    .answer-display {
-      background: #ffffff;
+    /* Kotak input jawapan */
+    .answer-input-group {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    input[type="text"] {
+      flex: 1;
+      padding: 12px;
+      font-size: 1.6rem;
+      text-align: center;
       border: 3px solid #cbd5e1;
       border-radius: 12px;
-      padding: 12px;
-      font-size: 2rem;
+      outline: none;
+      background: white;
       font-weight: bold;
-      color: #1e293b;
-      min-height: 60px;
-      width: 100%;
-      margin-bottom: 15px;
-      text-align: right;
-      word-break: break-all;
       letter-spacing: 2px;
-      box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+      min-width: 0;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input[type="text"]:focus {
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
     }
 
-    /* Numpad */
+    /* Numpad yang lebih kecil & kemas */
     .numpad {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-bottom: 15px;
+      gap: 6px;
+      margin-bottom: 10px;
     }
     .numpad-btn {
       background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
       color: #1e293b;
-      border: 2px solid #a5b4fc;
-      padding: 15px 0;
-      font-size: 1.8rem;
+      border: 1px solid #a5b4fc;
+      padding: 8px 0;
+      font-size: 1.3rem;
       font-weight: bold;
-      border-radius: 14px;
+      border-radius: 8px;
       cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+      transition: transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.06);
       user-select: none;
       -webkit-user-select: none;
     }
     .numpad-btn:active {
-      transform: scale(0.92);
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transform: scale(0.9);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.08);
     }
     .numpad-btn.special {
       background: linear-gradient(135deg, #fde68a 0%, #f59e0b 100%);
       border-color: #d97706;
       color: #78350f;
-      font-size: 1.2rem;
+      font-size: 1rem;
     }
     .numpad-btn.clear {
       background: linear-gradient(135deg, #fca5a5 0%, #ef4444 100%);
@@ -227,43 +230,46 @@
       color: white;
     }
 
+    /* Butang semak */
     .submit-btn {
       background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
       color: white;
       border: none;
-      padding: 16px;
-      font-size: 1.3rem;
+      padding: 14px;
+      font-size: 1.1rem;
       font-weight: bold;
-      border-radius: 14px;
+      border-radius: 12px;
       cursor: pointer;
       width: 100%;
-      box-shadow: 0 5px 15px rgba(79, 70, 229, 0.4);
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .submit-btn:active {
+      transform: scale(0.96);
     }
 
     .next-btn {
       background: linear-gradient(135deg, #10b981 0%, #059669 100%);
       color: white;
       display: none;
-      margin-top: 15px;
-      width: 100%;
-      box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
-    }
-
-    .back-btn {
-      background: #64748b;
-      color: white;
       margin-top: 10px;
-      font-size: 0.9rem;
-      padding: 10px 16px;
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
     }
 
     .feedback {
-      font-size: 1.1rem;
+      font-size: 1rem;
       font-weight: 600;
       min-height: 30px;
-      margin-top: 15px;
-      padding: 12px;
-      border-radius: 12px;
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 10px;
       transition: all 0.3s;
     }
     .feedback.correct {
@@ -306,21 +312,23 @@
       100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
     }
 
-    /* Responsive tweaks */
+    /* Responsif untuk skrin kecil */
     @media (max-width: 400px) {
-      .game-container { padding: 20px 15px; }
-      .simple-question { font-size: 1.5rem; }
+      .game-container { padding: 15px 10px; }
+      h1 { font-size: 1.3rem; }
+      .level-btn { padding: 8px 10px; font-size: 0.85rem; }
+      .simple-question { font-size: 1.4rem; }
       .vertical-form { font-size: 1.2rem; }
-      .numpad-btn { padding: 12px 0; font-size: 1.5rem; }
+      .numpad-btn { padding: 6px 0; font-size: 1.1rem; }
+      input[type="text"] { font-size: 1.4rem; }
     }
   </style>
 </head>
 <body>
 
 <div class="game-container">
-  <!-- Skrin Mula -->
-  <div id="startScreen" class="screen active">
-    <!-- Maskot Kartun SVG -->
+  <!-- Kepala dengan maskot -->
+  <div class="header">
     <div class="mascot">
       <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
         <circle cx="50" cy="45" r="35" fill="#FFD93D" stroke="#F9A825" stroke-width="3"/>
@@ -335,57 +343,56 @@
         <text x="65" y="90" font-size="18" fill="#1e293b" font-weight="bold">=</text>
       </svg>
     </div>
-
     <h1>🔢 Tambah Ceria!</h1>
-    <p style="color:#475569; margin-bottom:10px;">Pilih tahap kesukaran:</p>
-
-    <div class="level-buttons">
-      <button class="level-btn" onclick="startLevel('easy')">
-        <span>🌱</span> Mudah (1–10)
-      </button>
-      <button class="level-btn" onclick="startLevel('moderate')">
-        <span>🚀</span> Sederhana (1–20)
-      </button>
-      <button class="level-btn" onclick="startLevel('hard')">
-        <span>🧠</span> Sukar (1–100, bentuk lazim)
-      </button>
-    </div>
   </div>
 
-  <!-- Skrin Permainan -->
-  <div id="gameScreen" class="screen">
-    <div class="score-board">
-      <span>🏆 Skor: <span id="score">0</span></span>
-      <span id="levelLabel" style="background:white; padding:4px 10px; border-radius:8px;"></span>
-    </div>
-
-    <div class="question-area" id="questionArea"></div>
-
-    <!-- Paparan Jawapan -->
-    <div class="answer-display" id="answerDisplay">0</div>
-
-    <!-- Numpad -->
-    <div class="numpad">
-      <button class="numpad-btn" onclick="pressDigit('1')">1</button>
-      <button class="numpad-btn" onclick="pressDigit('2')">2</button>
-      <button class="numpad-btn" onclick="pressDigit('3')">3</button>
-      <button class="numpad-btn" onclick="pressDigit('4')">4</button>
-      <button class="numpad-btn" onclick="pressDigit('5')">5</button>
-      <button class="numpad-btn" onclick="pressDigit('6')">6</button>
-      <button class="numpad-btn" onclick="pressDigit('7')">7</button>
-      <button class="numpad-btn" onclick="pressDigit('8')">8</button>
-      <button class="numpad-btn" onclick="pressDigit('9')">9</button>
-      <button class="numpad-btn special" onclick="pressBackspace()">⌫</button>
-      <button class="numpad-btn" onclick="pressDigit('0')">0</button>
-      <button class="numpad-btn special clear" onclick="clearAnswer()">C</button>
-    </div>
-
-    <button class="submit-btn" onclick="checkAnswer()">✔ Semak</button>
-
-    <div class="feedback" id="feedbackText"></div>
-    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Soalan Seterusnya ➔</button>
-    <button class="back-btn" onclick="backToMenu()">← Menu Utama</button>
+  <!-- Butang pilih tahap (sentiasa kelihatan) -->
+  <div class="level-buttons">
+    <button class="level-btn" onclick="startLevel('easy')">🌱 Mudah (1–10)</button>
+    <button class="level-btn" onclick="startLevel('moderate')">🚀 Sederhana (1–20)</button>
+    <button class="level-btn" onclick="startLevel('hard')">🧠 Sukar (1–100)</button>
   </div>
+
+  <!-- Papan skor -->
+  <div class="score-board">
+    <span>🏆 Skor: <span id="score">0</span></span>
+    <span id="levelLabel" style="background:white; padding:4px 10px; border-radius:8px;">🌱 Mudah</span>
+  </div>
+
+  <!-- Kawasan soalan -->
+  <div class="question-area" id="questionArea">
+    <p style="color:#64748b;">Sila pilih tahap untuk mula.</p>
+  </div>
+
+  <!-- Input jawapan -->
+  <div class="answer-input-group">
+    <input type="text" id="answerInput" inputmode="numeric" pattern="[0-9]*" placeholder="Jawapan" autocomplete="off">
+  </div>
+
+  <!-- Numpad kecil -->
+  <div class="numpad">
+    <button class="numpad-btn" onclick="pressDigit('1')">1</button>
+    <button class="numpad-btn" onclick="pressDigit('2')">2</button>
+    <button class="numpad-btn" onclick="pressDigit('3')">3</button>
+    <button class="numpad-btn" onclick="pressDigit('4')">4</button>
+    <button class="numpad-btn" onclick="pressDigit('5')">5</button>
+    <button class="numpad-btn" onclick="pressDigit('6')">6</button>
+    <button class="numpad-btn" onclick="pressDigit('7')">7</button>
+    <button class="numpad-btn" onclick="pressDigit('8')">8</button>
+    <button class="numpad-btn" onclick="pressDigit('9')">9</button>
+    <button class="numpad-btn special" onclick="pressBackspace()">⌫</button>
+    <button class="numpad-btn" onclick="pressDigit('0')">0</button>
+    <button class="numpad-btn special clear" onclick="clearAnswer()">C</button>
+  </div>
+
+  <!-- Butang semak -->
+  <button class="submit-btn" onclick="checkAnswer()">✔ Semak</button>
+
+  <!-- Maklum balas -->
+  <div class="feedback" id="feedbackText"></div>
+
+  <!-- Butang seterusnya -->
+  <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Soalan Seterusnya ➔</button>
 </div>
 
 <script>
@@ -422,15 +429,14 @@
   }
 
   // ---------- Pemboleh Ubah Global ----------
-  let currentLevel = '';
+  let currentLevel = 'easy';
   let currentQuestion = null;
   let score = 0;
-  let currentInput = '0';
+  let answered = false;
   const icons = ['apple', 'star', 'car', 'balloon'];
   let currentIcon = 'apple';
-  let answered = false;
 
-  // ---------- Fungsi Skrin ----------
+  // ---------- Fungsi Mula Tahap ----------
   function startLevel(level) {
     currentLevel = level;
     score = 0;
@@ -441,55 +447,34 @@
       hard: '🧠 Sukar (1–100)'
     };
     document.getElementById('levelLabel').textContent = levelNames[level];
-    document.getElementById('startScreen').classList.remove('active');
-    document.getElementById('gameScreen').classList.add('active');
+    answered = false;
     generateQuestion();
   }
 
-  function backToMenu() {
-    document.getElementById('gameScreen').classList.remove('active');
-    document.getElementById('startScreen').classList.add('active');
-    currentQuestion = null;
-    currentInput = '0';
-    updateDisplay();
-    document.getElementById('feedbackText').textContent = '';
-    document.getElementById('feedbackText').className = 'feedback';
-    document.getElementById('nextBtn').style.display = 'none';
-    answered = false;
-  }
-
-  // ---------- Numpad Functions ----------
+  // ---------- Numpad & Input ----------
   function pressDigit(digit) {
     if (answered) return;
-    if (currentInput === '0') {
-      currentInput = digit;
+    const input = document.getElementById('answerInput');
+    // Elakkan nombor bermula dengan 0 berulang
+    if (input.value === '0') {
+      input.value = digit;
     } else {
-      // Elakkan terlalu panjang
-      if (currentInput.replace('-', '').length < 3) {
-        currentInput += digit;
+      if (input.value.replace(/\D/g, '').length < 3) {
+        input.value += digit;
       }
     }
-    updateDisplay();
   }
 
   function pressBackspace() {
     if (answered) return;
-    if (currentInput.length > 1) {
-      currentInput = currentInput.slice(0, -1);
-    } else {
-      currentInput = '0';
-    }
-    updateDisplay();
+    const input = document.getElementById('answerInput');
+    input.value = input.value.slice(0, -1);
+    if (input.value === '') input.value = '';
   }
 
   function clearAnswer() {
     if (answered) return;
-    currentInput = '0';
-    updateDisplay();
-  }
-
-  function updateDisplay() {
-    document.getElementById('answerDisplay').textContent = currentInput;
+    document.getElementById('answerInput').value = '';
   }
 
   // ---------- Penjanaan Soalan ----------
@@ -502,9 +487,11 @@
       n2 = Math.floor(Math.random() * maxN2) + 1;
     } while (n1 + n2 > maxSum || n1 < 1 || n2 < 1);
     currentQuestion = { n1, n2, answer: n1 + n2 };
-    currentInput = '0';
     answered = false;
-    updateDisplay();
+    document.getElementById('answerInput').value = '';
+    document.getElementById('feedbackText').textContent = '';
+    document.getElementById('feedbackText').className = 'feedback';
+    document.getElementById('nextBtn').style.display = 'none';
     renderQuestion();
   }
 
@@ -549,10 +536,6 @@
       container.appendChild(equals);
       area.appendChild(container);
     }
-
-    document.getElementById('feedbackText').textContent = '';
-    document.getElementById('feedbackText').className = 'feedback';
-    document.getElementById('nextBtn').style.display = 'none';
   }
 
   // ---------- Bentuk Lazim ----------
@@ -584,18 +567,12 @@
   // ---------- Semakan Jawapan ----------
   function checkAnswer() {
     if (answered) return;
-    if (currentInput === '0' && currentQuestion.answer !== 0) {
-      const feedback = document.getElementById('feedbackText');
-      feedback.textContent = '📝 Masukkan jawapan dahulu.';
-      feedback.className = 'feedback wrong';
-      return;
-    }
-
-    const userAnswer = parseInt(currentInput, 10);
+    const input = document.getElementById('answerInput');
+    const userAnswer = parseInt(input.value, 10);
     const q = currentQuestion;
     const feedback = document.getElementById('feedbackText');
 
-    if (isNaN(userAnswer)) {
+    if (input.value.trim() === '' || isNaN(userAnswer)) {
       feedback.textContent = '📝 Sila masukkan jawapan.';
       feedback.className = 'feedback wrong';
       return;
@@ -620,6 +597,7 @@
     }
 
     document.getElementById('nextBtn').style.display = 'inline-block';
+    input.blur();
   }
 
   // ---------- Penerangan Bawa Ke Atas ----------
@@ -675,7 +653,14 @@
     generateQuestion();
   }
 
-  // ---------- PWA: Service Worker Registration ----------
+  // ---------- Benarkan Enter pada input ----------
+  document.getElementById('answerInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      checkAnswer();
+    }
+  });
+
+  // ---------- Pendaftaran Service Worker (PWA) ----------
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('/sw.js')
