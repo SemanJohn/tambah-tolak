@@ -64,7 +64,6 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Menu */
     .menu-mascot {
       width: 80px;
       height: 80px;
@@ -121,7 +120,6 @@
       transform: scale(0.96);
     }
 
-    /* Game */
     .score-board {
       font-size: 1rem;
       font-weight: bold;
@@ -149,7 +147,6 @@
       transition: all 0.3s;
     }
 
-    /* Soalan mudah / sederhana */
     .simple-question {
       font-size: 1.6rem;
       font-weight: 700;
@@ -193,7 +190,6 @@
       box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
     }
 
-    /* Bentuk lazim */
     .vertical-form-editable {
       font-family: 'Courier New', Courier, monospace;
       font-weight: bold;
@@ -250,6 +246,31 @@
       background: #f0f4ff;
     }
 
+    .carry-input {
+      border: 2px solid transparent;
+      background: transparent;
+      color: #1e293b;
+      font-weight: bold;
+      font-size: 1.5rem;
+      text-align: center;
+      padding: 0;
+      margin: 0;
+      outline: none;
+      width: 32px;
+      height: 40px;
+      border-radius: 4px;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+    .carry-input.carry-visible {
+      border-color: #cbd5e1;
+      background: white;
+    }
+    .carry-input:focus {
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+      background: #f0f4ff;
+    }
+
     .plus-cell {
       font-size: 1.5rem;
       color: #1e293b;
@@ -261,7 +282,6 @@
       margin: 5px 0;
     }
 
-    /* Numpad */
     .numpad {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -378,7 +398,6 @@
       100% { transform: scale(1); }
     }
 
-    /* Confetti */
     .confetti-piece {
       position: fixed;
       width: 10px;
@@ -403,7 +422,7 @@
       .vertical-form-editable { font-size: 1.2rem; }
       .numpad-btn { padding: 6px 0; font-size: 1.1rem; }
       .cell { width: 28px; height: 34px; font-size: 1.2rem; }
-      .digit-input { width: 28px; height: 34px; font-size: 1.2rem; }
+      .digit-input, .carry-input { width: 28px; height: 34px; font-size: 1.2rem; }
       .answer-inline-input { width: 60px; height: 40px; font-size: 1.3rem; }
     }
   </style>
@@ -411,7 +430,7 @@
 <body>
 
 <div class="game-container">
-  <div class="version-label" id="versionLabel">Versi 1.3</div>
+  <div class="version-label" id="versionLabel">Versi 1.4</div>
 
   <!-- MENU -->
   <div id="menuSection" class="section active">
@@ -462,7 +481,7 @@
       <button class="numpad-btn special clear" onclick="clearAnswer()">C</button>
     </div>
 
-    <button class="submit-btn" onclick="checkAnswer()">✔ Semak</button>
+    <button class="submit-btn" id="actionBtn" onclick="handleAction()">✔ Semak</button>
 
     <div class="feedback" id="feedbackText"></div>
 
@@ -508,12 +527,16 @@
   let currentLevel = 'easy';
   let currentQuestion = null;
   let score = 0;
-  let scoredCorrect = false; // penanda soalan telah diberi markah betul
+  let scoredCorrect = false;
   const icons = ['apple', 'star', 'car', 'balloon'];
   let currentIcon = 'apple';
-  let activeInput = null; // rujukan input yang sedang fokus
-  let carryInputs = [];
+  let activeInput = null;
+  let carryInputs = [];   // indeks mengikut lajur (0 = unit, 1 = puluh, 2 = ratus)
   let answerInputs = [];
+  let op1Digits = [];
+  let op2Digits = [];
+  let totalColumns = 0;
+  let currentCol = 0;
 
   // ---------- Paparan ----------
   function showSection(sectionId) {
@@ -556,21 +579,23 @@
     if (activeInput) {
       activeInput.classList.add('active-input');
       activeInput.focus();
+      // Jika input adalah digit-input, kemaskini currentCol berdasarkan indeks
+      const idxInAnswer = answerInputs.indexOf(activeInput);
+      if (idxInAnswer !== -1) {
+        currentCol = idxInAnswer;
+        updateActionButton();
+      }
     }
   }
 
   // ---------- Numpad ----------
   function pressDigit(digit) {
     if (!activeInput) return;
-    if (activeInput.classList.contains('digit-input')) {
-      // Sel digit bentuk lazim – hanya satu digit
+    if (activeInput.classList.contains('digit-input') || activeInput.classList.contains('carry-input')) {
       activeInput.value = digit;
-      // Pindahkan fokus ke sel seterusnya (ke kiri dalam susunan visual)
-      moveToNextInput();
+      // Jika digit-input, kekal fokus
     } else if (activeInput.classList.contains('answer-inline-input')) {
-      // Input jawapan mudah/sederhana
-      const maxLen = 3;
-      if (activeInput.value.length < maxLen) {
+      if (activeInput.value.length < 3) {
         activeInput.value += digit;
       }
     }
@@ -578,9 +603,8 @@
 
   function pressBackspace() {
     if (!activeInput) return;
-    if (activeInput.classList.contains('digit-input')) {
+    if (activeInput.classList.contains('digit-input') || activeInput.classList.contains('carry-input')) {
       activeInput.value = '';
-      moveToPreviousInput();
     } else if (activeInput.classList.contains('answer-inline-input')) {
       activeInput.value = activeInput.value.slice(0, -1);
     }
@@ -588,10 +612,11 @@
 
   function clearAnswer() {
     if (currentLevel === 'hard') {
-      carryInputs.forEach(inp => inp.value = '');
+      carryInputs.forEach(inp => { inp.value = ''; inp.classList.remove('carry-visible'); });
       answerInputs.forEach(inp => inp.value = '');
-      // Fokus ke unit jawapan
-      if (answerInputs.length > 0) setActiveInput(answerInputs[answerInputs.length - 1]);
+      setActiveInput(answerInputs[0]);
+      currentCol = 0;
+      updateActionButton();
     } else {
       const inlineInput = document.querySelector('.answer-inline-input');
       if (inlineInput) {
@@ -601,19 +626,16 @@
     }
   }
 
-  function moveToNextInput() {
-    const allInputs = [...carryInputs, ...answerInputs];
-    const idx = allInputs.indexOf(activeInput);
-    if (idx > -1 && idx < allInputs.length - 1) {
-      setActiveInput(allInputs[idx + 1]);
-    }
-  }
-
-  function moveToPreviousInput() {
-    const allInputs = [...carryInputs, ...answerInputs];
-    const idx = allInputs.indexOf(activeInput);
-    if (idx > 0) {
-      setActiveInput(allInputs[idx - 1]);
+  function updateActionButton() {
+    const btn = document.getElementById('actionBtn');
+    if (currentLevel === 'hard') {
+      if (currentCol < totalColumns - 1) {
+        btn.textContent = 'Seterusnya ➔';
+      } else {
+        btn.textContent = '✔ Semak';
+      }
+    } else {
+      btn.textContent = '✔ Semak';
     }
   }
 
@@ -633,7 +655,10 @@
     document.getElementById('nextBtn').style.display = 'none';
     carryInputs = [];
     answerInputs = [];
+    op1Digits = [];
+    op2Digits = [];
     activeInput = null;
+    currentCol = 0;
     renderQuestion();
   }
 
@@ -644,6 +669,7 @@
 
     if (currentLevel === 'hard') {
       area.appendChild(buildVerticalForm(q.n1, q.n2));
+      updateActionButton();
     } else {
       currentIcon = icons[Math.floor(Math.random() * icons.length)];
       const container = document.createElement('div');
@@ -682,47 +708,55 @@
       container.appendChild(inlineInput);
       area.appendChild(container);
 
-      // Tetapkan fokus awal
       setActiveInput(inlineInput);
+      updateActionButton();
     }
   }
 
   // ---------- Bentuk Lazim Interaktif ----------
   function buildVerticalForm(n1, n2) {
     const answer = n1 + n2;
-    const L = String(answer).length; // bilangan digit jawapan
     const str1 = String(n1);
     const str2 = String(n2);
     const len1 = str1.length;
     const len2 = str2.length;
+    const answerStr = String(answer);
+    totalColumns = Math.max(len1, len2, answerStr.length);
 
+    // Isi digit operan dari kanan ke kiri (unit di indeks 0)
+    op1Digits = [];
+    op2Digits = [];
+    for (let col = 0; col < totalColumns; col++) {
+      const pos1 = len1 - 1 - col;
+      const pos2 = len2 - 1 - col;
+      op1Digits.push(pos1 >= 0 ? str1[pos1] : '');
+      op2Digits.push(pos2 >= 0 ? str2[pos2] : '');
+    }
+
+    // Bina struktur baris
     const form = document.createElement('div');
     form.className = 'vertical-form-editable';
 
     // Baris bawa (carry)
     const carryRow = document.createElement('div');
     carryRow.className = 'vertical-row';
-    // Sel kosong pertama (untuk penjajaran dengan tanda '+')
     const carryBlank = document.createElement('div');
     carryBlank.className = 'cell';
     carryRow.appendChild(carryBlank);
 
-    // Sel bawa untuk setiap digit (dari kiri ke kanan, tempat tertinggi ke unit)
-    for (let p = 1; p <= L; p++) {
-      const colIdx = L - p; // 0 = unit
+    carryInputs = [];
+    for (let col = totalColumns - 1; col >= 0; col--) {
       const input = document.createElement('input');
       input.type = 'text';
       input.inputMode = 'numeric';
       input.pattern = '[0-9]*';
       input.maxLength = 1;
-      input.className = 'cell digit-input carry-input';
-      input.dataset.column = colIdx;
-      input.placeholder = '';
+      input.className = 'cell carry-input';
       input.value = '';
       input.addEventListener('focus', () => setActiveInput(input));
       input.addEventListener('click', () => setActiveInput(input));
       carryRow.appendChild(input);
-      carryInputs.push(input);
+      carryInputs[col] = input; // simpan dengan indeks kolum (0=unit)
     }
     form.appendChild(carryRow);
 
@@ -732,40 +766,25 @@
     const n1Blank = document.createElement('div');
     n1Blank.className = 'cell';
     n1Row.appendChild(n1Blank);
-
-    for (let p = 1; p <= L; p++) {
-      const colIdx = L - p;
+    for (let col = totalColumns - 1; col >= 0; col--) {
       const cell = document.createElement('div');
       cell.className = 'cell digit-display';
-      // Tentukan digit yang sepadan dengan lajur ini, jika ada
-      const strPos = len1 - 1 - colIdx; // indeks dari kiri dalam str1
-      if (strPos >= 0) {
-        cell.textContent = str1[strPos];
-      } else {
-        cell.textContent = '';
-      }
+      cell.textContent = op1Digits[col] || '';
       n1Row.appendChild(cell);
     }
     form.appendChild(n1Row);
 
-    // Baris nombor kedua dengan tanda '+'
+    // Baris nombor kedua dengan '+'
     const n2Row = document.createElement('div');
     n2Row.className = 'vertical-row';
     const plusCell = document.createElement('div');
     plusCell.className = 'cell plus-cell';
     plusCell.textContent = '+';
     n2Row.appendChild(plusCell);
-
-    for (let p = 1; p <= L; p++) {
-      const colIdx = L - p;
+    for (let col = totalColumns - 1; col >= 0; col--) {
       const cell = document.createElement('div');
       cell.className = 'cell digit-display';
-      const strPos = len2 - 1 - colIdx;
-      if (strPos >= 0) {
-        cell.textContent = str2[strPos];
-      } else {
-        cell.textContent = '';
-      }
+      cell.textContent = op2Digits[col] || '';
       n2Row.appendChild(cell);
     }
     form.appendChild(n2Row);
@@ -773,7 +792,7 @@
     // Garis pemisah
     const lineRow = document.createElement('div');
     lineRow.className = 'vertical-row line-row';
-    for (let i = 0; i <= L; i++) {
+    for (let i = 0; i <= totalColumns; i++) {
       const cell = document.createElement('div');
       cell.className = 'cell';
       lineRow.appendChild(cell);
@@ -787,30 +806,95 @@
     answerBlank.className = 'cell';
     answerRow.appendChild(answerBlank);
 
-    for (let p = 1; p <= L; p++) {
-      const colIdx = L - p;
+    answerInputs = [];
+    for (let col = totalColumns - 1; col >= 0; col--) {
       const input = document.createElement('input');
       input.type = 'text';
       input.inputMode = 'numeric';
       input.pattern = '[0-9]*';
       input.maxLength = 1;
       input.className = 'cell digit-input answer-input';
-      input.dataset.column = colIdx;
-      input.placeholder = '?';
       input.value = '';
       input.addEventListener('focus', () => setActiveInput(input));
       input.addEventListener('click', () => setActiveInput(input));
       answerRow.appendChild(input);
-      answerInputs.push(input);
+      answerInputs[col] = input;
     }
     form.appendChild(answerRow);
 
-    // Fokus awal ke sel unit jawapan (paling kanan)
-    if (answerInputs.length > 0) {
-      setActiveInput(answerInputs[answerInputs.length - 1]);
-    }
+    // Fokus awal ke unit (indeks 0)
+    setActiveInput(answerInputs[0]);
+    currentCol = 0;
+    updateActionButton();
 
     return form;
+  }
+
+  // ---------- Proses Lajur Semasa (untuk bentuk lazim) ----------
+  function processCurrentColumn() {
+    const input = answerInputs[currentCol];
+    if (!input || input.value.trim() === '') {
+      const feedback = document.getElementById('feedbackText');
+      feedback.textContent = '📝 Masukkan digit jawapan.';
+      feedback.className = 'feedback wrong';
+      return false;
+    }
+
+    const digit1 = parseInt(op1Digits[currentCol]) || 0;
+    const digit2 = parseInt(op2Digits[currentCol]) || 0;
+    const carryInput = carryInputs[currentCol];
+    const currentCarry = parseInt(carryInput.value) || 0;
+    const actualSum = digit1 + digit2 + currentCarry;
+    const actualCarry = Math.floor(actualSum / 10);
+
+    // Jika pengguna masukkan lebih daripada satu digit, asingkan
+    const rawValue = input.value.trim();
+    let onesDigit;
+    if (rawValue.length > 1) {
+      const full = parseInt(rawValue, 10);
+      onesDigit = full % 10;
+      const carryFromFull = Math.floor(full / 10);
+      input.value = String(onesDigit);
+      // Gunakan carry sebenar, bukan daripada input pengguna, kerana carry ditentukan oleh operan
+    } else {
+      onesDigit = parseInt(rawValue, 10);
+    }
+
+    // Tetapkan carry ke lajur berikutnya (jika ada)
+    if (currentCol + 1 < totalColumns) {
+      const nextCarryInput = carryInputs[currentCol + 1];
+      if (actualCarry > 0) {
+        nextCarryInput.value = String(actualCarry);
+        nextCarryInput.classList.add('carry-visible');
+      } else {
+        nextCarryInput.value = '';
+        nextCarryInput.classList.remove('carry-visible');
+      }
+    }
+
+    return true;
+  }
+
+  // ---------- Pengendali Butang Utama ----------
+  function handleAction() {
+    const feedback = document.getElementById('feedbackText');
+    if (currentLevel === 'hard') {
+      // Proses lajur semasa dahulu
+      if (!processCurrentColumn()) return;
+
+      if (currentCol < totalColumns - 1) {
+        // Bergerak ke lajur seterusnya
+        currentCol++;
+        const nextInput = answerInputs[currentCol];
+        setActiveInput(nextInput);
+        updateActionButton();
+      } else {
+        // Sudah di lajur terakhir, semak jawapan penuh
+        checkAnswer();
+      }
+    } else {
+      checkAnswer();
+    }
   }
 
   // ---------- Semakan Jawapan ----------
@@ -820,7 +904,6 @@
     let userAnswer;
 
     if (currentLevel === 'hard') {
-      // Kumpul semua digit jawapan dari kiri ke kanan
       const answerDigits = answerInputs.map(inp => inp.value.trim());
       if (answerDigits.some(d => d === '')) {
         feedback.textContent = '📝 Lengkapkan semua digit jawapan.';
