@@ -1,155 +1,166 @@
 <!DOCTYPE html>
 <html lang="ms">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Permainan Tambah Interaktif</title>
-  <link rel="manifest" href='data:application/manifest+json,{"name":"Permainan Tambah","short_name":"Tambah","start_url":".","display":"standalone","background_color":"#f0f4ff","theme_color":"#4f46e5","icons":[{"src":"data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ctext y=\'.9em\' font-size=\'90\'%3E🔢%3C/text%3E%3C/svg%3E","sizes":"any","type":"image/svg+xml"}]}'>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 10px;
-      touch-action: manipulation;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .game-container {
-      background: white;
-      border-radius: 24px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-      width: 100%;
-      max-width: 480px;
-      padding: 20px 15px;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
-    .version-label {
-      position: absolute;
-      top: 10px;
-      left: 15px;
-      font-size: 0.7rem;
-      color: #94a3b8;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      z-index: 10;
-      pointer-events: none;
-    }
-    .section { display: none; }
-    .section.active { display: block; animation: fadeIn 0.25s ease; }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .menu-mascot { width: 80px; height: 80px; margin: 0 auto 10px; animation: bounce 2s infinite; }
-    @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
-    .menu-title { color:#1e293b; font-size:1.7rem; margin-bottom:10px; }
-    .menu-subtitle { color:#475569; margin-bottom:20px; }
-    .level-buttons { display:flex; flex-direction:column; gap:12px; margin:15px 0; }
-    .level-btn {
-      border:none; padding:16px; font-size:1.2rem; font-weight:bold; border-radius:16px; cursor:pointer;
-      transition: transform 0.2s, box-shadow 0.2s; box-shadow:0 4px 12px rgba(0,0,0,0.1);
-      display:flex; align-items:center; justify-content:center; gap:10px; color:white;
-    }
-    .level-btn:nth-child(1) { background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%); }
-    .level-btn:nth-child(2) { background:linear-gradient(135deg,#4facfe 0%,#00f2fe 100%); }
-    .level-btn:nth-child(3) { background:linear-gradient(135deg,#43e97b 0%,#38f9d7 100%); }
-    .level-btn:active { transform:scale(0.96); }
-    .score-board {
-      font-size:1rem; font-weight:bold; color:#4f46e5; margin-bottom:10px;
-      display:flex; justify-content:space-between; align-items:center;
-      background:#eef2ff; padding:8px 12px; border-radius:10px;
-    }
-    .question-area {
-      background:#f8fafc; border:2px dashed #cbd5e1; border-radius:16px; padding:15px 8px;
-      margin-bottom:10px; min-height:100px; display:flex; justify-content:center; align-items:center; flex-wrap:wrap;
-    }
-    .simple-question { font-size:1.6rem; font-weight:700; color:#1e293b; display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:center; }
-    .object-group { display:inline-flex; gap:3px; align-items:center; }
-    .object-icon { width:25px; height:25px; }
-    .operator { font-size:1.5rem; color:#f59e0b; font-weight:bold; }
-    .answer-inline-input {
-      width:70px; height:50px; font-size:1.6rem; text-align:center; border:3px solid #cbd5e1; border-radius:10px;
-      outline:none; background:white; font-weight:bold; letter-spacing:1px; transition:border-color 0.2s, box-shadow 0.2s;
-    }
-    .answer-inline-input:focus,
-    .answer-inline-input.active-input {
-      border-color:#4f46e5; box-shadow:0 0 0 3px rgba(79,70,229,0.2); background:#f0f4ff;
-    }
-    .vertical-form-editable { font-family:'Courier New', Courier, monospace; font-weight:bold; color:#1e293b; text-align:left; background:white; padding:10px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.05); }
-    .vertical-row { display:flex; justify-content:flex-end; align-items:center; gap:2px; margin:2px 0; }
-    .cell { width:32px; height:40px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; border-radius:4px; }
-    .digit-display { background:transparent; color:#1e293b; user-select:none; }
-    .digit-input,
-    .carry-input {
-      border:2px solid #cbd5e1; background:white; color:#1e293b; font-weight:bold; font-size:1.5rem;
-      text-align:center; padding:0; margin:0; outline:none; width:32px; height:40px; border-radius:4px;
-      transition:border-color 0.2s, box-shadow 0.2s, background 0.2s;
-    }
-    .digit-input:focus,
-    .digit-input.active-input,
-    .carry-input:focus,
-    .carry-input.active-input {
-      border-color:#4f46e5; box-shadow:0 0 0 3px rgba(79,70,229,0.2); background:#f0f4ff;
-    }
-    .carry-input { border:2px solid transparent; background:transparent; }
-    .carry-input.carry-visible { border-color:#cbd5e1; background:white; }
-    .plus-cell { font-size:1.5rem; color:#1e293b; user-select:none; }
-    .line-row { border-top:3px solid #1e293b; margin:5px 0; }
-    .hidden-input { display: none; }
-    .numpad { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-bottom:10px; }
-    .numpad-btn {
-      background:linear-gradient(135deg,#e0e7ff 0%,#c7d2fe 100%); color:#1e293b; border:1px solid #a5b4fc;
-      padding:8px 0; font-size:1.3rem; font-weight:bold; border-radius:8px; cursor:pointer;
-      transition:transform 0.15s, box-shadow 0.15s; box-shadow:0 2px 4px rgba(0,0,0,0.06); user-select:none; -webkit-user-select:none;
-    }
-    .numpad-btn:active { transform:scale(0.9); box-shadow:0 1px 2px rgba(0,0,0,0.08); }
-    .numpad-btn.special { background:linear-gradient(135deg,#fde68a 0%,#f59e0b 100%); border-color:#d97706; color:#78350f; font-size:1rem; }
-    .numpad-btn.clear { background:linear-gradient(135deg,#fca5a5 0%,#ef4444 100%); border-color:#b91c1c; color:white; }
-    .submit-btn {
-      background:linear-gradient(135deg,#4f46e5 0%,#7c3aed 100%); color:white; border:none; padding:14px;
-      font-size:1.1rem; font-weight:bold; border-radius:12px; cursor:pointer; width:100%;
-      box-shadow:0 4px 12px rgba(79,70,229,0.4); transition:transform 0.2s, box-shadow 0.2s;
-    }
-    .submit-btn:active { transform:scale(0.96); }
-    .next-btn {
-      background:linear-gradient(135deg,#10b981 0%,#059669 100%); color:white; display:none; margin-top:10px;
-      width:100%; padding:12px; border:none; border-radius:12px; font-size:1rem; font-weight:bold;
-      cursor:pointer; box-shadow:0 4px 12px rgba(16,185,129,0.4);
-    }
-    .back-btn {
-      background:#64748b; color:white; border:none; padding:10px; font-size:0.9rem; border-radius:10px;
-      cursor:pointer; margin-top:10px; width:100%;
-    }
-    .back-btn:active { background:#475569; }
-    .feedback { font-size:1rem; font-weight:600; min-height:30px; margin-top:10px; padding:10px; border-radius:10px; transition:all 0.3s; }
-    .feedback.correct { background:#ecfdf5; color:#065f46; border:2px solid #10b981; animation:pop 0.3s ease; }
-    .feedback.wrong { background:#fef2f2; color:#991b1b; border:2px solid #ef4444; animation:shake 0.3s ease; }
-    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
-    @keyframes pop { 0%{transform:scale(0.9)} 100%{transform:scale(1)} }
-    .confetti-piece { position:fixed; width:10px; height:10px; background:#f44336; top:-20px; z-index:999; animation:confettiFall 3s linear forwards; pointer-events:none; border-radius:2px; }
-    @keyframes confettiFall { 0%{transform:translateY(0) rotate(0deg); opacity:1;} 100%{transform:translateY(110vh) rotate(720deg); opacity:0;} }
-    @media (max-width:400px) {
-      .game-container { padding:15px 10px; }
-      .menu-title { font-size:1.4rem; }
-      .level-btn { padding:12px; font-size:1rem; }
-      .simple-question { font-size:1.4rem; }
-      .vertical-form-editable { font-size:1.2rem; }
-      .numpad-btn { padding:6px 0; font-size:1.1rem; }
-      .cell { width:28px; height:34px; font-size:1.2rem; }
-      .digit-input, .carry-input { width:28px; height:34px; font-size:1.2rem; }
-      .answer-inline-input { width:60px; height:40px; font-size:1.3rem; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Permainan Tambah Interaktif</title>
+<link rel="manifest" href='data:application/manifest+json,{"name":"Permainan Tambah","short_name":"Tambah","start_url":".","display":"standalone","background_color":"#f0f4ff","theme_color":"#4f46e5","icons":[{"src":"data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ctext y=\'.9em\' font-size=\'90\'%3E🔢%3C/text%3E%3C/svg%3E","sizes":"any","type":"image/svg+xml"}]}'>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.game-container {
+  background: white;
+  border-radius: 24px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+  width: 100%;
+  max-width: 480px;
+  padding: 20px 15px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.version-label {
+  position: absolute;
+  top: 10px;
+  left: 15px;
+  font-size: 0.7rem;
+  color: #94a3b8;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  z-index: 10;
+  pointer-events: none;
+}
+.section { display: none; }
+.section.active { display: block; animation: fadeIn 0.25s ease; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.menu-mascot { width: 80px; height: 80px; margin: 0 auto 10px; animation: bounce 2s infinite; }
+@keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+.menu-title { color:#1e293b; font-size:1.7rem; margin-bottom:10px; }
+.menu-subtitle { color:#475569; margin-bottom:20px; }
+.level-buttons { display:flex; flex-direction:column; gap:12px; margin:15px 0; }
+.level-btn {
+  border:none; padding:16px; font-size:1.2rem; font-weight:bold; border-radius:16px; cursor:pointer;
+  transition: transform 0.2s, box-shadow 0.2s; box-shadow:0 4px 12px rgba(0,0,0,0.1);
+  display:flex; align-items:center; justify-content:center; gap:10px; color:white;
+}
+.level-btn:nth-child(1) { background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%); }
+.level-btn:nth-child(2) { background:linear-gradient(135deg,#4facfe 0%,#00f2fe 100%); }
+.level-btn:nth-child(3) { background:linear-gradient(135deg,#43e97b 0%,#38f9d7 100%); }
+.level-btn:active { transform:scale(0.96); }
+.score-board {
+  font-size:1rem; font-weight:bold; color:#4f46e5; margin-bottom:10px;
+  display:flex; justify-content:space-between; align-items:center;
+  background:#eef2ff; padding:8px 12px; border-radius:10px;
+}
+.question-area {
+  background:#f8fafc; border:2px dashed #cbd5e1; border-radius:16px; padding:15px 8px;
+  margin-bottom:10px; min-height:100px; display:flex; justify-content:center; align-items:center; flex-wrap:wrap;
+}
+.simple-question { font-size:1.6rem; font-weight:700; color:#1e293b; display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:center; }
+.object-group { display:inline-flex; gap:3px; align-items:center; }
+.object-icon { width:25px; height:25px; }
+.operator { font-size:1.5rem; color:#f59e0b; font-weight:bold; }
+.answer-inline-input {
+  width:70px; height:50px; font-size:1.6rem; text-align:center; border:3px solid #cbd5e1; border-radius:10px;
+  outline:none; background:white; font-weight:bold; letter-spacing:1px; transition:border-color 0.2s, box-shadow 0.2s;
+}
+.answer-inline-input:focus,
+.answer-inline-input.active-input {
+  border-color:#4f46e5; box-shadow:0 0 0 3px rgba(79,70,229,0.2); background:#f0f4ff;
+}
+.vertical-form-editable { font-family:'Courier New', Courier, monospace; font-weight:bold; color:#1e293b; text-align:left; background:white; padding:10px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.05); }
+.vertical-row { display:flex; justify-content:flex-end; align-items:center; gap:2px; margin:2px 0; }
+.cell { width:32px; height:40px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; border-radius:4px; }
+.digit-display { background:transparent; color:#1e293b; user-select:none; }
+.digit-input {
+  border:2px solid #cbd5e1; background:white; color:#1e293b; font-weight:bold; font-size:1.5rem;
+  text-align:center; padding:0; margin:0; outline:none; width:32px; height:40px; border-radius:4px;
+  transition:border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+.digit-input:focus,
+.digit-input.active-input {
+  border-color:#4f46e5; box-shadow:0 0 0 3px rgba(79,70,229,0.2); background:#f0f4ff;
+}
+.digit-input.done { border-color:#cbd5e1; background:#f8fafc; }
+.digit-input.col-wrong { border-color:#ef4444; background:#fef2f2; }
+.digit-input.col-right { border-color:#10b981; background:#ecfdf5; }
+/* Sel bawa: paparan sahaja, diisi automatik oleh sistem */
+.carry-cell {
+  width:32px; height:40px; display:flex; align-items:center; justify-content:center;
+  font-size:0.95rem; color:#d97706; font-weight:bold; border-radius:4px;
+  border:2px dashed transparent; background:transparent; user-select:none;
+}
+.carry-cell.carry-visible { border-color:#fbbf24; background:#fffbeb; }
+.plus-cell { font-size:1.5rem; color:#1e293b; user-select:none; }
+.line-row { border-top:3px solid #1e293b; margin:5px 0; }
+/* Lajur tambahan sentiasa wujud untuk penjajaran, tetapi tidak kelihatan sehingga diperlukan */
+.col-hidden { visibility:hidden; }
+.numpad { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-bottom:10px; }
+.numpad-btn {
+  background:linear-gradient(135deg,#e0e7ff 0%,#c7d2fe 100%); color:#1e293b; border:1px solid #a5b4fc;
+  padding:8px 0; font-size:1.3rem; font-weight:bold; border-radius:8px; cursor:pointer;
+  transition:transform 0.15s, box-shadow 0.15s; box-shadow:0 2px 4px rgba(0,0,0,0.06); user-select:none; -webkit-user-select:none;
+}
+.numpad-btn:active { transform:scale(0.9); box-shadow:0 1px 2px rgba(0,0,0,0.08); }
+.numpad-btn.special { background:linear-gradient(135deg,#fde68a 0%,#f59e0b 100%); border-color:#d97706; color:#78350f; font-size:1rem; }
+.numpad-btn.clear { background:linear-gradient(135deg,#fca5a5 0%,#ef4444 100%); border-color:#b91c1c; color:white; }
+.submit-btn {
+  background:linear-gradient(135deg,#4f46e5 0%,#7c3aed 100%); color:white; border:none; padding:14px;
+  font-size:1.1rem; font-weight:bold; border-radius:12px; cursor:pointer; width:100%;
+  box-shadow:0 4px 12px rgba(79,70,229,0.4); transition:transform 0.2s, box-shadow 0.2s;
+}
+.submit-btn:active { transform:scale(0.96); }
+.next-btn {
+  background:linear-gradient(135deg,#10b981 0%,#059669 100%); color:white; display:none; margin-top:10px;
+  width:100%; padding:12px; border:none; border-radius:12px; font-size:1rem; font-weight:bold;
+  cursor:pointer; box-shadow:0 4px 12px rgba(16,185,129,0.4);
+}
+.back-btn {
+  background:#64748b; color:white; border:none; padding:10px; font-size:0.9rem; border-radius:10px;
+  cursor:pointer; margin-top:10px; width:100%;
+}
+.back-btn:active { background:#475569; }
+.hint-line { font-size:0.8rem; color:#64748b; margin-bottom:8px; min-height:18px; }
+.feedback { font-size:1rem; font-weight:600; min-height:30px; margin-top:10px; padding:10px; border-radius:10px; transition:all 0.3s; }
+.feedback.correct { background:#ecfdf5; color:#065f46; border:2px solid #10b981; animation:pop 0.3s ease; }
+.feedback.wrong { background:#fef2f2; color:#991b1b; border:2px solid #ef4444; animation:shake 0.3s ease; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+@keyframes pop { 0%{transform:scale(0.9)} 100%{transform:scale(1)} }
+.confetti-piece { position:fixed; width:10px; height:10px; background:#f44336; top:-20px; z-index:999; animation:confettiFall 3s linear forwards; pointer-events:none; border-radius:2px; }
+@keyframes confettiFall { 0%{transform:translateY(0) rotate(0deg); opacity:1;} 100%{transform:translateY(110vh) rotate(720deg); opacity:0;} }
+@media (max-width:400px) {
+  .game-container { padding:15px 10px; }
+  .menu-title { font-size:1.4rem; }
+  .level-btn { padding:12px; font-size:1rem; }
+  .simple-question { font-size:1.4rem; }
+  .vertical-form-editable { font-size:1.2rem; }
+  .numpad-btn { padding:6px 0; font-size:1.1rem; }
+  .cell, .carry-cell { width:28px; height:34px; font-size:1.2rem; }
+  .carry-cell { font-size:0.85rem; }
+  .digit-input { width:28px; height:34px; font-size:1.2rem; }
+  .answer-inline-input { width:60px; height:40px; font-size:1.3rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+</style>
 </head>
 <body>
 <div class="game-container">
-  <div class="version-label" id="versionLabel">Versi 1.7</div>
+  <div class="version-label" id="versionLabel">Versi 1.8</div>
 
   <div id="menuSection" class="section active">
     <div class="menu-mascot">
@@ -171,7 +182,7 @@
     <div class="level-buttons">
       <button class="level-btn" onclick="startLevel('easy')">🌱 Mudah (1–10)</button>
       <button class="level-btn" onclick="startLevel('moderate')">🚀 Sederhana (1–20)</button>
-      <button class="level-btn" onclick="startLevel('hard')">🧠 Sukar (1–100, bentuk lazim)</button>
+      <button class="level-btn" onclick="startLevel('hard')">🧠 Sukar (bentuk lazim)</button>
     </div>
   </div>
 
@@ -181,6 +192,7 @@
       <span id="levelLabel" style="background:white; padding:4px 10px; border-radius:8px;"></span>
     </div>
     <div class="question-area" id="questionArea"></div>
+    <div class="hint-line" id="hintLine"></div>
     <div class="numpad">
       <button class="numpad-btn" onclick="pressDigit('1')">1</button>
       <button class="numpad-btn" onclick="pressDigit('2')">2</button>
@@ -203,435 +215,553 @@
 </div>
 
 <script>
-  // ==================== UTILITI ====================
-  function getObjectSVG(type) {
-    const svgs = {
-      apple: `<svg class="object-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="60" r="35" fill="#ff5252"/><rect x="47" y="15" width="6" height="20" rx="3" fill="#8B4513"/><ellipse cx="60" cy="30" rx="12" ry="6" fill="#4CAF50" transform="rotate(-20 60 30)"/><circle cx="50" cy="60" r="5" fill="#ffb3b3" opacity="0.5"/></svg>`,
-      star: `<svg class="object-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><polygon points="50,5 61,35 95,35 68,55 78,90 50,70 22,90 32,55 5,35 39,35" fill="#FFD700" stroke="#FFA000" stroke-width="2"/><circle cx="40" cy="35" r="4" fill="white" opacity="0.7"/></svg>`,
-      car: `<svg class="object-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect x="15" y="40" width="70" height="30" rx="8" fill="#42A5F5"/><rect x="30" y="25" width="40" height="15" rx="5" fill="#1E88E5"/><circle cx="30" cy="70" r="12" fill="#333"/><circle cx="70" cy="70" r="12" fill="#333"/><circle cx="30" cy="70" r="5" fill="#ccc"/><circle cx="70" cy="70" r="5" fill="#ccc"/><rect x="45" y="42" width="10" height="10" rx="2" fill="#BBDEFB"/></svg>`,
-      balloon: `<svg class="object-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><ellipse cx="50" cy="40" rx="25" ry="30" fill="#FF7043"/><path d="M50 70 L50 90" stroke="#8D6E63" stroke-width="3"/><polygon points="50,40 65,25 55,50" fill="#FFAB91" opacity="0.6"/><circle cx="45" cy="30" r="5" fill="white" opacity="0.5"/></svg>`
-    };
-    return svgs[type] || svgs.apple;
+// ==================== UTILITI ====================
+function getObjectSVG(type) {
+  const svgs = {
+    apple: `<svg class="object-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="60" r="35" fill="#ff5252"/><rect x="47" y="15" width="6" height="20" rx="3" fill="#8B4513"/><ellipse cx="60" cy="30" rx="12" ry="6" fill="#4CAF50" transform="rotate(-20 60 30)"/><circle cx="50" cy="60" r="5" fill="#ffb3b3" opacity="0.5"/></svg>`,
+    star: `<svg class="object-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><polygon points="50,5 61,35 95,35 68,55 78,90 50,70 22,90 32,55 5,35 39,35" fill="#FFD700" stroke="#FFA000" stroke-width="2"/><circle cx="40" cy="35" r="4" fill="white" opacity="0.7"/></svg>`,
+    car: `<svg class="object-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect x="15" y="40" width="70" height="30" rx="8" fill="#42A5F5"/><rect x="30" y="25" width="40" height="15" rx="5" fill="#1E88E5"/><circle cx="30" cy="70" r="12" fill="#333"/><circle cx="70" cy="70" r="12" fill="#333"/><circle cx="30" cy="70" r="5" fill="#ccc"/><circle cx="70" cy="70" r="5" fill="#ccc"/><rect x="45" y="42" width="10" height="10" rx="2" fill="#BBDEFB"/></svg>`,
+    balloon: `<svg class="object-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><ellipse cx="50" cy="40" rx="25" ry="30" fill="#FF7043"/><path d="M50 70 L50 90" stroke="#8D6E63" stroke-width="3"/><polygon points="50,40 65,25 55,50" fill="#FFAB91" opacity="0.6"/><circle cx="45" cy="30" r="5" fill="white" opacity="0.5"/></svg>`
+  };
+  return svgs[type] || svgs.apple;
+}
+
+// ==================== PEMBOLEH UBAH ====================
+let currentLevel = 'easy';
+let currentQuestion = null;
+let score = 0;
+let scoredCorrect = false;
+const icons = ['apple', 'star', 'car', 'balloon'];
+let currentIcon = 'apple';
+let activeInput = null;
+
+// Keadaan bentuk lazim (indeks 0 = sa, 1 = puluh, 2 = ratus ...)
+let baseCols = 0;          // bilangan lajur mengikut digit operan
+let extraColIndex = 0;     // indeks lajur tambahan (bawa akhir)
+let extraColShown = false; // adakah lajur tambahan sudah dibuka
+let answerCells = [];      // input jawapan setiap lajur
+let carryCells = [];       // paparan bawa setiap lajur
+let op1Digits = [];
+let op2Digits = [];
+let expectedDigits = [];   // digit jawapan betul setiap lajur
+let currentCol = 0;
+let locked = false;        // true selepas Semak, sehingga soalan seterusnya
+
+// ==================== PAPARAN ====================
+function showSection(sectionId) {
+  document.getElementById('menuSection').classList.remove('active');
+  document.getElementById('gameSection').classList.remove('active');
+  document.getElementById(sectionId).classList.add('active');
+}
+
+function startLevel(level) {
+  currentLevel = level;
+  score = 0;
+  document.getElementById('score').textContent = score;
+  const levelNames = { easy: '🌱 Mudah (1–10)', moderate: '🚀 Sederhana (1–20)', hard: '🧠 Bentuk lazim' };
+  document.getElementById('levelLabel').textContent = levelNames[level];
+  scoredCorrect = false;
+  showSection('gameSection');
+  generateQuestion();
+}
+
+function backToMenu() {
+  showSection('menuSection');
+  currentQuestion = null;
+  setFeedback('', '');
+  document.getElementById('hintLine').textContent = '';
+  document.getElementById('nextBtn').style.display = 'none';
+  if (activeInput) activeInput.blur();
+  activeInput = null;
+}
+
+function setFeedback(text, kind, isHtml) {
+  const el = document.getElementById('feedbackText');
+  if (isHtml) el.innerHTML = text; else el.textContent = text;
+  el.className = 'feedback' + (kind ? ' ' + kind : '');
+}
+
+// ==================== FOKUS & INPUT ====================
+function setActiveInput(el) {
+  if (activeInput) {
+    activeInput.classList.remove('active-input');
+    activeInput.blur();
   }
-
-  // ==================== PEMBOLEH UBAH ====================
-  let currentLevel = 'easy';
-  let currentQuestion = null;
-  let score = 0;
-  let scoredCorrect = false;
-  const icons = ['apple', 'star', 'car', 'balloon'];
-  let currentIcon = 'apple';
-  let activeInput = null;
-  let carryInputs = [];
-  let answerInputs = [];
-  let op1Digits = [];
-  let op2Digits = [];
-  let totalColumns = 0;
-  let currentCol = 0;
-
-  // ==================== PAPARAN ====================
-  function showSection(sectionId) {
-    document.getElementById('menuSection').classList.remove('active');
-    document.getElementById('gameSection').classList.remove('active');
-    document.getElementById(sectionId).classList.add('active');
-  }
-
-  function startLevel(level) {
-    currentLevel = level;
-    score = 0;
-    document.getElementById('score').textContent = score;
-    const levelNames = { easy: '🌱 Mudah (1–10)', moderate: '🚀 Sederhana (1–20)', hard: '🧠 Sukar (1–100)' };
-    document.getElementById('levelLabel').textContent = levelNames[level];
-    scoredCorrect = false;
-    showSection('gameSection');
-    generateQuestion();
-  }
-
-  function backToMenu() {
-    showSection('menuSection');
-    currentQuestion = null;
-    document.getElementById('feedbackText').textContent = '';
-    document.getElementById('feedbackText').className = 'feedback';
-    document.getElementById('nextBtn').style.display = 'none';
-    if (activeInput) activeInput.blur();
-    activeInput = null;
-  }
-
-  // ==================== FOKUS & INPUT ====================
-  function setActiveInput(el) {
-    if (activeInput) {
-      activeInput.classList.remove('active-input');
-      activeInput.blur();
-    }
-    activeInput = el;
-    if (activeInput) {
-      activeInput.classList.add('active-input');
-      activeInput.focus(); // walaupun readonly, masih boleh fokus untuk tujuan visual
-      const idx = answerInputs.indexOf(activeInput);
-      if (idx !== -1) currentCol = idx;
-      updateActionButton();
-    }
-  }
-
-  function pressDigit(digit) {
-    if (!activeInput) return;
-    if (activeInput.classList.contains('digit-input') || activeInput.classList.contains('carry-input') || activeInput.classList.contains('answer-inline-input')) {
-      if (activeInput.value.length < 3) {
-        activeInput.value += digit;
-      }
-    }
-  }
-
-  function pressBackspace() {
-    if (!activeInput) return;
-    if (activeInput.value.length > 0) {
-      activeInput.value = activeInput.value.slice(0, -1);
-    } else {
-      // Fokus ke input sebelumnya yang visible
-      moveToPreviousEditable();
-    }
-  }
-
-  function moveToPreviousEditable() {
-    const allInputs = [];
-    for (let col = 0; col < totalColumns; col++) {
-      allInputs.push(answerInputs[col]);
-      allInputs.push(carryInputs[col]);
-    }
-    const currentIdx = allInputs.indexOf(activeInput);
-    if (currentIdx === -1) return;
-    for (let i = currentIdx - 1; i >= 0; i--) {
-      const candidate = allInputs[i];
-      if (candidate && !candidate.classList.contains('hidden-input')) {
-        setActiveInput(candidate);
-        return;
-      }
-    }
-  }
-
-  function clearAnswer() {
+  activeInput = el || null;
+  if (activeInput) {
+    activeInput.classList.add('active-input');
+    activeInput.focus({ preventScroll: true });
     if (currentLevel === 'hard') {
-      carryInputs.forEach(inp => { inp.value = ''; inp.classList.remove('carry-visible'); inp.classList.add('hidden-input'); });
-      answerInputs.forEach((inp, idx) => {
-        inp.value = '';
-        if (idx === 0) {
-          inp.classList.remove('hidden-input');
-        } else {
-          inp.classList.add('hidden-input');
-        }
-      });
-      setActiveInput(answerInputs[0]);
-      currentCol = 0;
-      updateActionButton();
-    } else {
-      const inlineInput = document.querySelector('.answer-inline-input');
-      if (inlineInput) {
-        inlineInput.value = '';
-        setActiveInput(inlineInput);
-      }
+      const col = Number(activeInput.dataset.col);
+      if (!Number.isNaN(col)) currentCol = col;
     }
   }
+  updateActionButton();
+  updateHint();
+}
 
-  function updateActionButton() {
-    const btn = document.getElementById('actionBtn');
-    if (currentLevel === 'hard') {
-      if (currentCol < totalColumns - 1) {
-        btn.textContent = 'Seterusnya ➔';
-      } else {
-        btn.textContent = '✔ Semak';
-      }
-    } else {
-      btn.textContent = '✔ Semak';
-    }
+function maxCharsFor(input) {
+  if (!input) return 0;
+  if (input.classList.contains('answer-inline-input')) return 3;
+  // Lajur tambahan hanya menerima satu digit (nilai bawa terakhir)
+  if (Number(input.dataset.col) === extraColIndex) return 1;
+  // Lajur biasa: murid menaip jumlah lajur (maksimum 19)
+  return 2;
+}
+
+function pressDigit(digit) {
+  if (locked || !activeInput) return;
+  if (activeInput.value.length < maxCharsFor(activeInput)) {
+    activeInput.value += digit;
   }
+  updateHint();
+}
 
-  // ==================== SOALAN ====================
-  function generateQuestion() {
-    const maxSum = currentLevel === 'easy' ? 10 : currentLevel === 'moderate' ? 20 : 100;
-    let n1, n2;
-    do {
-      n1 = Math.floor(Math.random() * maxSum) + 1;
-      const maxN2 = Math.max(1, maxSum - n1);
-      n2 = Math.floor(Math.random() * maxN2) + 1;
-    } while (n1 + n2 > maxSum || n1 < 1 || n2 < 1);
-    currentQuestion = { n1, n2, answer: n1 + n2 };
-    scoredCorrect = false;
-    document.getElementById('feedbackText').textContent = '';
-    document.getElementById('feedbackText').className = 'feedback';
-    document.getElementById('nextBtn').style.display = 'none';
-    carryInputs = [];
-    answerInputs = [];
-    op1Digits = [];
-    op2Digits = [];
-    activeInput = null;
+function pressBackspace() {
+  if (locked || !activeInput) return;
+  if (activeInput.value.length > 0) {
+    activeInput.value = activeInput.value.slice(0, -1);
+    updateHint();
+    return;
+  }
+  if (currentLevel === 'hard') moveToPreviousColumn();
+}
+
+// Undur satu lajur: batalkan bawa dan tutup semula lajur tambahan jika perlu
+function moveToPreviousColumn() {
+  if (currentCol <= 0) return;
+  if (currentCol === extraColIndex && extraColShown) {
+    hideExtraColumn();
+    setActiveInput(answerCells[baseCols - 1]);
+    return;
+  }
+  clearCarry(currentCol);
+  const prev = answerCells[currentCol - 1];
+  answerCells[currentCol].value = '';
+  answerCells[currentCol].classList.remove('done');
+  prev.classList.remove('done');
+  setActiveInput(prev);
+}
+
+function clearAnswer() {
+  if (locked) return;
+  if (currentLevel === 'hard') {
+    if (extraColShown) hideExtraColumn();
+    for (let col = 0; col < baseCols; col++) {
+      answerCells[col].value = '';
+      answerCells[col].classList.remove('done', 'col-wrong', 'col-right');
+      clearCarry(col);
+    }
     currentCol = 0;
-    renderQuestion();
-  }
-
-  function renderQuestion() {
-    const q = currentQuestion;
-    const area = document.getElementById('questionArea');
-    area.innerHTML = '';
-
-    if (currentLevel === 'hard') {
-      area.appendChild(buildVerticalForm(q.n1, q.n2));
-      updateActionButton();
-    } else {
-      currentIcon = icons[Math.floor(Math.random() * icons.length)];
-      const container = document.createElement('div');
-      container.className = 'simple-question';
-      const group1 = document.createElement('span'); group1.className = 'object-group';
-      for (let i = 0; i < q.n1; i++) group1.innerHTML += getObjectSVG(currentIcon);
-      const plus = document.createElement('span'); plus.className = 'operator'; plus.textContent = '➕';
-      const group2 = document.createElement('span'); group2.className = 'object-group';
-      for (let i = 0; i < q.n2; i++) group2.innerHTML += getObjectSVG(currentIcon);
-      const equals = document.createElement('span'); equals.className = 'operator'; equals.textContent = '=';
-      const inlineInput = document.createElement('input');
-      inlineInput.type = 'text'; inlineInput.inputMode = 'none'; inlineInput.pattern = '[0-9]*'; inlineInput.maxLength = 3;
-      inlineInput.className = 'answer-inline-input'; inlineInput.placeholder = '?'; inlineInput.readOnly = true;
-      inlineInput.addEventListener('focus', () => setActiveInput(inlineInput));
-      inlineInput.addEventListener('click', () => setActiveInput(inlineInput));
-      container.appendChild(group1); container.appendChild(plus); container.appendChild(group2); container.appendChild(equals); container.appendChild(inlineInput);
-      area.appendChild(container);
+    setActiveInput(answerCells[0]);
+  } else {
+    const inlineInput = document.querySelector('.answer-inline-input');
+    if (inlineInput) {
+      inlineInput.value = '';
       setActiveInput(inlineInput);
-      updateActionButton();
     }
   }
+}
 
-  function buildVerticalForm(n1, n2) {
-    const answer = n1 + n2;
-    const str1 = String(n1); const str2 = String(n2);
-    const len1 = str1.length; const len2 = str2.length;
-    const answerStr = String(answer);
-    totalColumns = Math.max(len1, len2, answerStr.length);
+function updateActionButton() {
+  const btn = document.getElementById('actionBtn');
+  if (currentLevel !== 'hard') { btn.textContent = '✔ Semak'; return; }
+  const lastCol = extraColShown ? extraColIndex : baseCols - 1;
+  btn.textContent = currentCol < lastCol ? 'Seterusnya ➔' : '✔ Semak';
+}
 
-    op1Digits = []; op2Digits = [];
-    for (let col = 0; col < totalColumns; col++) {
-      const pos1 = len1 - 1 - col;
-      const pos2 = len2 - 1 - col;
-      op1Digits.push(pos1 >= 0 ? str1[pos1] : '');
-      op2Digits.push(pos2 >= 0 ? str2[pos2] : '');
-    }
+function updateHint() {
+  const el = document.getElementById('hintLine');
+  if (currentLevel !== 'hard' || locked) { el.textContent = ''; return; }
+  const names = ['sa', 'puluh', 'ratus', 'ribu'];
+  const name = names[currentCol] || `tempat ${currentCol + 1}`;
+  if (currentCol === extraColIndex && extraColShown) {
+    el.textContent = `Lajur ${name}: tulis nombor bawa di sini.`;
+  } else {
+    el.textContent = `Lajur ${name}: taip jumlah lajur ini. Jika 10 ke atas, sistem akan bawa ke lajur kiri.`;
+  }
+}
 
-    const form = document.createElement('div');
-    form.className = 'vertical-form-editable';
+// ==================== SOALAN ====================
+function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 
-    // Baris bawa (carry)
-    const carryRow = document.createElement('div'); carryRow.className = 'vertical-row';
-    const carryBlank = document.createElement('div'); carryBlank.className = 'cell'; carryRow.appendChild(carryBlank);
-    carryInputs = [];
-    for (let col = totalColumns - 1; col >= 0; col--) {
-      const input = document.createElement('input');
-      input.type = 'text'; input.inputMode = 'none'; input.pattern = '[0-9]*'; input.maxLength = 2;
-      input.className = 'cell carry-input hidden-input'; // semua hidden pada mulanya
-      input.readOnly = true;
-      input.value = '';
-      input.addEventListener('focus', () => setActiveInput(input));
-      input.addEventListener('click', () => setActiveInput(input));
-      carryRow.appendChild(input);
-      carryInputs[col] = input;
-    }
-    form.appendChild(carryRow);
-
-    // Baris nombor pertama
-    const n1Row = document.createElement('div'); n1Row.className = 'vertical-row';
-    const n1Blank = document.createElement('div'); n1Blank.className = 'cell'; n1Row.appendChild(n1Blank);
-    for (let col = totalColumns - 1; col >= 0; col--) {
-      const cell = document.createElement('div'); cell.className = 'cell digit-display';
-      cell.textContent = op1Digits[col] || ''; n1Row.appendChild(cell);
-    }
-    form.appendChild(n1Row);
-
-    // Baris nombor kedua
-    const n2Row = document.createElement('div'); n2Row.className = 'vertical-row';
-    const plusCell = document.createElement('div'); plusCell.className = 'cell plus-cell'; plusCell.textContent = '+'; n2Row.appendChild(plusCell);
-    for (let col = totalColumns - 1; col >= 0; col--) {
-      const cell = document.createElement('div'); cell.className = 'cell digit-display';
-      cell.textContent = op2Digits[col] || ''; n2Row.appendChild(cell);
-    }
-    form.appendChild(n2Row);
-
-    // Garis pemisah
-    const lineRow = document.createElement('div'); lineRow.className = 'vertical-row line-row';
-    for (let i = 0; i <= totalColumns; i++) { const cell = document.createElement('div'); cell.className = 'cell'; lineRow.appendChild(cell); }
-    form.appendChild(lineRow);
-
-    // Baris jawapan
-    const answerRow = document.createElement('div'); answerRow.className = 'vertical-row';
-    const answerBlank = document.createElement('div'); answerBlank.className = 'cell'; answerRow.appendChild(answerBlank);
-    answerInputs = [];
-    for (let col = totalColumns - 1; col >= 0; col--) {
-      const input = document.createElement('input');
-      input.type = 'text'; input.inputMode = 'none'; input.pattern = '[0-9]*'; input.maxLength = 2;
-      input.className = 'cell digit-input answer-input';
-      input.readOnly = true;
-      input.value = '';
-      if (col !== 0) input.classList.add('hidden-input'); // hanya unit visible pada mulanya
-      input.addEventListener('focus', () => setActiveInput(input));
-      input.addEventListener('click', () => setActiveInput(input));
-      answerRow.appendChild(input);
-      answerInputs[col] = input;
-    }
-    form.appendChild(answerRow);
-
-    setActiveInput(answerInputs[0]);
-    currentCol = 0;
-    updateActionButton();
-    return form;
+function generateQuestion() {
+  let n1, n2;
+  if (currentLevel === 'hard') {
+    // Kedua-dua operan mesti 2 digit supaya bentuk lazim bermakna.
+    // Selang-seli antara soalan tanpa bawa dan dengan bawa.
+    const wantCarry = Math.random() < 0.6;
+    let guard = 0;
+    do {
+      n1 = randInt(10, 89);
+      n2 = randInt(10, 89);
+      guard++;
+    } while (guard < 200 && ((n1 % 10) + (n2 % 10) >= 10) !== wantCarry);
+  } else {
+    const maxSum = currentLevel === 'easy' ? 10 : 20;
+    n1 = randInt(1, maxSum - 1);
+    n2 = randInt(1, maxSum - n1);
   }
 
-  // ==================== AKSI UTAMA ====================
-  function handleAction() {
-    if (currentLevel === 'hard') {
-      const input = answerInputs[currentCol];
-      if (!input || input.value.trim() === '') {
-        document.getElementById('feedbackText').textContent = '📝 Masukkan jawapan.';
-        document.getElementById('feedbackText').className = 'feedback wrong';
+  currentQuestion = { n1, n2, answer: n1 + n2 };
+  scoredCorrect = false;
+  locked = false;
+  setFeedback('', '');
+  document.getElementById('nextBtn').style.display = 'none';
+
+  answerCells = [];
+  carryCells = [];
+  op1Digits = [];
+  op2Digits = [];
+  expectedDigits = [];
+  extraColShown = false;
+  activeInput = null;
+  currentCol = 0;
+
+  renderQuestion();
+}
+
+function computeExpected(n1, n2) {
+  const s1 = String(n1).split('').reverse();
+  const s2 = String(n2).split('').reverse();
+  baseCols = Math.max(s1.length, s2.length);
+  extraColIndex = baseCols; // lajur tambahan hanya untuk bawa akhir
+  op1Digits = [];
+  op2Digits = [];
+  expectedDigits = [];
+  let carry = 0;
+  for (let i = 0; i < baseCols; i++) {
+    const d1 = i < s1.length ? parseInt(s1[i], 10) : 0;
+    const d2 = i < s2.length ? parseInt(s2[i], 10) : 0;
+    op1Digits.push(i < s1.length ? s1[i] : '');
+    op2Digits.push(i < s2.length ? s2[i] : '');
+    const total = d1 + d2 + carry;
+    expectedDigits.push(total % 10);
+    carry = Math.floor(total / 10);
+  }
+  expectedDigits.push(carry); // 0 jika tiada bawa akhir
+}
+
+function renderQuestion() {
+  const q = currentQuestion;
+  const area = document.getElementById('questionArea');
+  area.innerHTML = '';
+
+  if (currentLevel === 'hard') {
+    area.appendChild(buildVerticalForm(q.n1, q.n2));
+  } else {
+    document.getElementById('hintLine').textContent = '';
+    currentIcon = icons[Math.floor(Math.random() * icons.length)];
+    const container = document.createElement('div');
+    container.className = 'simple-question';
+    const group1 = document.createElement('span'); group1.className = 'object-group';
+    for (let i = 0; i < q.n1; i++) group1.innerHTML += getObjectSVG(currentIcon);
+    const plus = document.createElement('span'); plus.className = 'operator'; plus.textContent = '➕';
+    const group2 = document.createElement('span'); group2.className = 'object-group';
+    for (let i = 0; i < q.n2; i++) group2.innerHTML += getObjectSVG(currentIcon);
+    const equals = document.createElement('span'); equals.className = 'operator'; equals.textContent = '=';
+    const inlineInput = document.createElement('input');
+    inlineInput.type = 'text'; inlineInput.inputMode = 'none'; inlineInput.maxLength = 3;
+    inlineInput.className = 'answer-inline-input'; inlineInput.placeholder = '?'; inlineInput.readOnly = true;
+    inlineInput.addEventListener('click', () => setActiveInput(inlineInput));
+    container.append(group1, plus, group2, equals, inlineInput);
+    area.appendChild(container);
+    setActiveInput(inlineInput);
+  }
+}
+
+function buildVerticalForm(n1, n2) {
+  computeExpected(n1, n2);
+
+  const form = document.createElement('div');
+  form.className = 'vertical-form-editable';
+  const cols = baseCols + 1; // termasuk lajur tambahan di kiri sekali
+
+  // --- Baris bawa (paparan sahaja) ---
+  const carryRow = document.createElement('div'); carryRow.className = 'vertical-row';
+  carryRow.appendChild(makeCell('cell')); // ruang untuk tanda '+'
+  carryCells = [];
+  for (let col = cols - 1; col >= 0; col--) {
+    const cell = makeCell('carry-cell');
+    cell.textContent = '';
+    if (col === extraColIndex) cell.classList.add('col-hidden');
+    carryRow.appendChild(cell);
+    carryCells[col] = cell;
+  }
+  form.appendChild(carryRow);
+
+  // --- Baris nombor pertama ---
+  const n1Row = document.createElement('div'); n1Row.className = 'vertical-row';
+  n1Row.appendChild(makeCell('cell'));
+  for (let col = cols - 1; col >= 0; col--) {
+    const cell = makeCell('cell digit-display');
+    cell.textContent = col < baseCols ? (op1Digits[col] || '') : '';
+    n1Row.appendChild(cell);
+  }
+  form.appendChild(n1Row);
+
+  // --- Baris nombor kedua ---
+  const n2Row = document.createElement('div'); n2Row.className = 'vertical-row';
+  const plusCell = makeCell('cell plus-cell'); plusCell.textContent = '+'; n2Row.appendChild(plusCell);
+  for (let col = cols - 1; col >= 0; col--) {
+    const cell = makeCell('cell digit-display');
+    cell.textContent = col < baseCols ? (op2Digits[col] || '') : '';
+    n2Row.appendChild(cell);
+  }
+  form.appendChild(n2Row);
+
+  // --- Garis pemisah ---
+  const lineRow = document.createElement('div'); lineRow.className = 'vertical-row line-row';
+  for (let i = 0; i <= cols; i++) lineRow.appendChild(makeCell('cell'));
+  form.appendChild(lineRow);
+
+  // --- Baris jawapan ---
+  const answerRow = document.createElement('div'); answerRow.className = 'vertical-row';
+  answerRow.appendChild(makeCell('cell'));
+  answerCells = [];
+  for (let col = cols - 1; col >= 0; col--) {
+    const input = document.createElement('input');
+    input.type = 'text'; input.inputMode = 'none'; input.maxLength = 2;
+    input.className = 'cell digit-input';
+    input.readOnly = true;
+    input.value = '';
+    input.dataset.col = String(col);
+    if (col === extraColIndex) input.classList.add('col-hidden');
+    input.addEventListener('click', () => { if (!locked && isColumnOpen(col)) setActiveInput(input); });
+    answerRow.appendChild(input);
+    answerCells[col] = input;
+  }
+  form.appendChild(answerRow);
+
+  currentCol = 0;
+  setActiveInput(answerCells[0]);
+  return form;
+}
+
+function makeCell(className) {
+  const el = document.createElement('div');
+  el.className = className;
+  return el;
+}
+
+// Lajur boleh diklik hanya jika sudah dibuka (elak murid melompat ke depan)
+function isColumnOpen(col) {
+  if (col === extraColIndex) return extraColShown;
+  return col <= currentCol;
+}
+
+function showCarry(col, value) {
+  if (col > extraColIndex) return;
+  carryCells[col].textContent = value;
+  carryCells[col].classList.add('carry-visible');
+  if (col === extraColIndex) carryCells[col].classList.remove('col-hidden');
+}
+
+function clearCarry(col) {
+  if (col < 0 || col > extraColIndex) return;
+  carryCells[col].textContent = '';
+  carryCells[col].classList.remove('carry-visible');
+  if (col === extraColIndex) carryCells[col].classList.add('col-hidden');
+}
+
+function showExtraColumn() {
+  extraColShown = true;
+  answerCells[extraColIndex].classList.remove('col-hidden');
+}
+
+function hideExtraColumn() {
+  extraColShown = false;
+  answerCells[extraColIndex].value = '';
+  answerCells[extraColIndex].classList.add('col-hidden');
+  answerCells[extraColIndex].classList.remove('done', 'col-wrong', 'col-right', 'active-input');
+  clearCarry(extraColIndex);
+}
+
+// ==================== AKSI UTAMA ====================
+function handleAction() {
+  if (locked) return;
+  if (currentLevel !== 'hard') { checkAnswer(); return; }
+
+  const input = answerCells[currentCol];
+  const raw = (input.value || '').trim();
+  if (raw === '') {
+    setFeedback('📝 Taip jumlah untuk lajur ini dahulu.', 'wrong');
+    return;
+  }
+
+  // Lajur tambahan: satu digit sahaja, terus semak
+  if (currentCol === extraColIndex) {
+    input.value = raw.slice(-1);
+    checkAnswer();
+    return;
+  }
+
+  const written = raw.slice(-1);      // digit yang ditulis di bawah garis
+  const carryPart = raw.slice(0, -1); // bahagian yang dibawa ke lajur kiri
+  input.value = written;
+  input.classList.add('done');
+
+  const nextCol = currentCol + 1;
+  if (carryPart && parseInt(carryPart, 10) > 0) {
+    showCarry(nextCol, carryPart);
+  } else {
+    clearCarry(nextCol);
+  }
+
+  if (nextCol < baseCols) {
+    setActiveInput(answerCells[nextCol]);
+    setFeedback('', '');
+    return;
+  }
+
+  // Lajur terakhir selesai
+  if (carryPart && parseInt(carryPart, 10) > 0) {
+    showExtraColumn();          // buka lajur baharu untuk nombor bawa
+    setActiveInput(answerCells[extraColIndex]);
+    setFeedback('', '');
+  } else {
+    checkAnswer();
+  }
+}
+
+function checkAnswer() {
+  const q = currentQuestion;
+  let userAnswer;
+
+  if (currentLevel === 'hard') {
+    const topCol = extraColShown ? extraColIndex : baseCols - 1;
+    const digits = [];
+    for (let col = topCol; col >= 0; col--) {
+      const cell = answerCells[col];
+      const val = (cell.value || '').trim();
+      if (val === '') {
+        setFeedback('📝 Lengkapkan semua digit jawapan.', 'wrong');
+        setActiveInput(cell);
         return;
       }
-      const raw = input.value.trim();
-      const lastDigit = raw.charAt(raw.length - 1);
-      const carryPart = raw.slice(0, -1);
-      input.value = lastDigit;
-
-      if (currentCol < totalColumns - 1) {
-        const nextCol = currentCol + 1;
-        const nextCarryInput = carryInputs[nextCol];
-        if (carryPart) {
-          nextCarryInput.value = carryPart;
-          nextCarryInput.classList.remove('hidden-input');
-          nextCarryInput.classList.add('carry-visible');
-        } else {
-          nextCarryInput.value = '';
-          nextCarryInput.classList.add('hidden-input');
-          nextCarryInput.classList.remove('carry-visible');
-        }
-        const nextAnswerInput = answerInputs[nextCol];
-        nextAnswerInput.classList.remove('hidden-input');
-        setActiveInput(nextAnswerInput);
-        currentCol = nextCol;
-        updateActionButton();
-      } else {
-        checkAnswer();
-      }
-    } else {
-      checkAnswer();
+      digits.push(val.slice(-1));
     }
-  }
-
-  function checkAnswer() {
-    const q = currentQuestion;
-    const feedback = document.getElementById('feedbackText');
-    let userAnswer;
-
-    if (currentLevel === 'hard') {
-      const digits = [];
-      for (let col = totalColumns - 1; col >= 0; col--) {
-        const inp = answerInputs[col];
-        if (!inp || inp.value.trim() === '') {
-          feedback.textContent = '📝 Lengkapkan semua digit jawapan.';
-          feedback.className = 'feedback wrong';
-          return;
-        }
-        digits.push(inp.value.trim());
-      }
-      userAnswer = parseInt(digits.join(''), 10);
-    } else {
-      const inlineInput = document.querySelector('.answer-inline-input');
-      if (!inlineInput || inlineInput.value.trim() === '') {
-        feedback.textContent = '📝 Sila masukkan jawapan.';
-        feedback.className = 'feedback wrong';
-        return;
-      }
-      userAnswer = parseInt(inlineInput.value, 10);
-    }
-
-    if (isNaN(userAnswer)) {
-      feedback.textContent = '📝 Jawapan tidak sah.';
-      feedback.className = 'feedback wrong';
+    userAnswer = parseInt(digits.join(''), 10);
+    markColumns(topCol);
+  } else {
+    const inlineInput = document.querySelector('.answer-inline-input');
+    const val = inlineInput ? inlineInput.value.trim() : '';
+    if (val === '') {
+      setFeedback('📝 Sila masukkan jawapan.', 'wrong');
       return;
     }
+    userAnswer = parseInt(val, 10);
+  }
 
-    if (userAnswer === q.answer) {
-      if (!scoredCorrect) {
-        score += 10;
-        document.getElementById('score').textContent = score;
-        scoredCorrect = true;
-      }
-      feedback.textContent = '🎉 Tahniah! Jawapan anda betul!';
-      feedback.className = 'feedback correct';
-      launchConfetti();
-    } else {
-      feedback.textContent = `❌ Kurang tepat. Jawapan sebenar ialah ${q.answer}.`;
-      feedback.className = 'feedback wrong';
+  if (Number.isNaN(userAnswer)) {
+    setFeedback('📝 Jawapan tidak sah.', 'wrong');
+    return;
+  }
+
+  locked = true;
+  document.getElementById('hintLine').textContent = '';
+
+  if (userAnswer === q.answer) {
+    if (!scoredCorrect) {
+      score += 10;
+      document.getElementById('score').textContent = score;
+      scoredCorrect = true;
     }
-
-    if (currentLevel === 'hard') {
-      const steps = explainAddition(q.n1, q.n2);
-      feedback.innerHTML += `<br><small>${steps}</small>`;
-    }
-    document.getElementById('nextBtn').style.display = 'inline-block';
+    setFeedback('🎉 Tahniah! Jawapan anda betul!', 'correct');
+    launchConfetti();
+  } else {
+    setFeedback(`❌ Kurang tepat. Jawapan sebenar ialah ${q.answer}.`, 'wrong');
   }
 
-  function explainAddition(n1, n2) {
-    const s1 = String(n1).split('').reverse();
-    const s2 = String(n2).split('').reverse();
-    let carry = 0;
-    const placeNames = ['sa', 'puluh', 'ratus'];
-    const steps = [];
-    const maxLen = Math.max(s1.length, s2.length);
-    for (let i = 0; i < maxLen || carry > 0; i++) {
-      const d1 = i < s1.length ? parseInt(s1[i], 10) : 0;
-      const d2 = i < s2.length ? parseInt(s2[i], 10) : 0;
-      const total = d1 + d2 + carry;
-      const digit = total % 10;
-      const newCarry = Math.floor(total / 10);
-      const place = placeNames[i] || `tempat ${i + 1}`;
-      let step = `${place}: ${d1} + ${d2}`;
-      if (carry > 0) step += ` + ${carry} (bawa)`;
-      step += ` = ${total}`;
-      if (newCarry > 0) step += `, tulis ${digit}, bawa ${newCarry}`;
-      else step += `, tulis ${digit}`;
-      steps.push(step);
-      carry = newCarry;
-    }
-    return '🛠️ Cara kira: ' + steps.join('; ') + '.';
+  if (currentLevel === 'hard' && userAnswer !== q.answer) {
+    const steps = explainAddition(q.n1, q.n2);
+    const el = document.getElementById('feedbackText');
+    el.innerHTML += `<br><small>${steps}</small>`;
   }
 
-  function launchConfetti() {
-    const colors = ['#f44336', '#e91e63', '#9c27b0', '#3f51b5', '#03a9f4', '#4caf50', '#ffeb3b', '#ff9800'];
-    for (let i = 0; i < 60; i++) {
-      const confetti = document.createElement('div');
-      confetti.className = 'confetti-piece';
-      confetti.style.left = Math.random() * 100 + 'vw';
-      confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-      confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
-      confetti.style.width = (Math.random() * 8 + 5) + 'px';
-      confetti.style.height = (Math.random() * 8 + 5) + 'px';
-      document.body.appendChild(confetti);
-      setTimeout(() => confetti.remove(), 3000);
-    }
-  }
+  document.getElementById('nextBtn').style.display = 'inline-block';
+  if (activeInput) { activeInput.classList.remove('active-input'); activeInput.blur(); }
+  activeInput = null;
+}
 
-  function nextQuestion() {
-    generateQuestion();
+// Tandakan lajur yang betul / silap supaya murid nampak di mana silapnya
+function markColumns(topCol) {
+  for (let col = 0; col <= topCol; col++) {
+    const cell = answerCells[col];
+    const val = parseInt(cell.value, 10);
+    cell.classList.remove('col-wrong', 'col-right', 'active-input');
+    cell.classList.add(val === expectedDigits[col] ? 'col-right' : 'col-wrong');
   }
+  // Bawa akhir yang sepatutnya ada tetapi tidak ditulis
+  if (!extraColShown && expectedDigits[extraColIndex] > 0) {
+    answerCells[baseCols - 1].classList.remove('col-right');
+    answerCells[baseCols - 1].classList.add('col-wrong');
+  }
+}
 
-  // ==================== SERVICE WORKER ====================
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js', { scope: './' })
-        .then(reg => {
-          console.log('Service Worker berjaya didaftarkan:', reg.scope);
-          if (reg.waiting) reg.waiting.postMessage('SKIP_WAITING');
-          navigator.serviceWorker.addEventListener('controllerchange', () => {
-            window.location.reload();
-          });
-          setInterval(() => reg.update(), 300000);
-        })
-        .catch(err => console.warn('Pendaftaran SW gagal:', err));
-    });
+function explainAddition(n1, n2) {
+  const s1 = String(n1).split('').reverse();
+  const s2 = String(n2).split('').reverse();
+  let carry = 0;
+  const placeNames = ['sa', 'puluh', 'ratus', 'ribu'];
+  const steps = [];
+  const maxLen = Math.max(s1.length, s2.length);
+  for (let i = 0; i < maxLen; i++) {
+    const d1 = i < s1.length ? parseInt(s1[i], 10) : 0;
+    const d2 = i < s2.length ? parseInt(s2[i], 10) : 0;
+    const total = d1 + d2 + carry;
+    const digit = total % 10;
+    const newCarry = Math.floor(total / 10);
+    const place = placeNames[i] || `tempat ${i + 1}`;
+    let step = `${place}: ${d1} + ${d2}`;
+    if (carry > 0) step += ` + ${carry} (bawa)`;
+    step += ` = ${total}, tulis ${digit}`;
+    if (newCarry > 0) step += `, bawa ${newCarry}`;
+    steps.push(step);
+    carry = newCarry;
   }
+  if (carry > 0) steps.push(`${placeNames[maxLen] || `tempat ${maxLen + 1}`}: turunkan bawa ${carry}`);
+  return '🛠️ Cara kira: ' + steps.join('; ') + '.';
+}
+
+function launchConfetti() {
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const colors = ['#f44336', '#e91e63', '#9c27b0', '#3f51b5', '#03a9f4', '#4caf50', '#ffeb3b', '#ff9800'];
+  for (let i = 0; i < 60; i++) {
+    const confetti = document.createElement('div');
+    confetti.className = 'confetti-piece';
+    confetti.style.left = Math.random() * 100 + 'vw';
+    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+    confetti.style.width = (Math.random() * 8 + 5) + 'px';
+    confetti.style.height = (Math.random() * 8 + 5) + 'px';
+    document.body.appendChild(confetti);
+    setTimeout(() => confetti.remove(), 3000);
+  }
+}
+
+function nextQuestion() { generateQuestion(); }
+
+// ==================== PAPAN KEKUNCI FIZIKAL ====================
+document.addEventListener('keydown', (e) => {
+  if (!document.getElementById('gameSection').classList.contains('active')) return;
+  if (e.key >= '0' && e.key <= '9') { pressDigit(e.key); e.preventDefault(); }
+  else if (e.key === 'Backspace') { pressBackspace(); e.preventDefault(); }
+  else if (e.key === 'Enter') { locked ? nextQuestion() : handleAction(); e.preventDefault(); }
+});
+
+// ==================== SERVICE WORKER ====================
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js', { scope: './' })
+      .then(reg => {
+        if (reg.waiting) reg.waiting.postMessage('SKIP_WAITING');
+        navigator.serviceWorker.addEventListener('controllerchange', () => window.location.reload());
+        setInterval(() => reg.update(), 300000);
+      })
+      .catch(err => console.warn('Pendaftaran SW gagal:', err));
+  });
+}
 </script>
 </body>
 </html>
