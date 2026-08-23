@@ -9,12 +9,7 @@
   <link rel="manifest" href='data:application/manifest+json,{"name":"Permainan Tambah","short_name":"Tambah","start_url":".","display":"standalone","background_color":"#f0f4ff","theme_color":"#4f46e5","icons":[{"src":"data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ctext y=\'.9em\' font-size=\'90\'%3E🔢%3C/text%3E%3C/svg%3E","sizes":"any","type":"image/svg+xml"}]}'>
 
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -26,7 +21,6 @@
       touch-action: manipulation;
       -webkit-tap-highlight-color: transparent;
     }
-
     .game-container {
       background: white;
       border-radius: 24px;
@@ -38,7 +32,6 @@
       position: relative;
       overflow: hidden;
     }
-
     .version-label {
       position: absolute;
       top: 10px;
@@ -50,387 +43,112 @@
       z-index: 10;
       pointer-events: none;
     }
-
-    .section {
-      display: none;
-    }
-    .section.active {
-      display: block;
-      animation: fadeIn 0.25s ease;
-    }
-
+    .section { display: none; }
+    .section.active { display: block; animation: fadeIn 0.25s ease; }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
-
-    .menu-mascot {
-      width: 80px;
-      height: 80px;
-      margin: 0 auto 10px;
-      animation: bounce 2s infinite;
-    }
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-8px); }
-    }
-
-    .menu-title {
-      color: #1e293b;
-      font-size: 1.7rem;
-      margin-bottom: 10px;
-    }
-
-    .menu-subtitle {
-      color: #475569;
-      margin-bottom: 20px;
-    }
-
-    .level-buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin: 15px 0;
-    }
+    .menu-mascot { width: 80px; height: 80px; margin: 0 auto 10px; animation: bounce 2s infinite; }
+    @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+    .menu-title { color:#1e293b; font-size:1.7rem; margin-bottom:10px; }
+    .menu-subtitle { color:#475569; margin-bottom:20px; }
+    .level-buttons { display:flex; flex-direction:column; gap:12px; margin:15px 0; }
     .level-btn {
-      border: none;
-      padding: 16px;
-      font-size: 1.2rem;
-      font-weight: bold;
-      border-radius: 16px;
-      cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      color: white;
+      border:none; padding:16px; font-size:1.2rem; font-weight:bold; border-radius:16px; cursor:pointer;
+      transition: transform 0.2s, box-shadow 0.2s; box-shadow:0 4px 12px rgba(0,0,0,0.1);
+      display:flex; align-items:center; justify-content:center; gap:10px; color:white;
     }
-    .level-btn:nth-child(1) {
-      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    }
-    .level-btn:nth-child(2) {
-      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    }
-    .level-btn:nth-child(3) {
-      background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-    }
-    .level-btn:active {
-      transform: scale(0.96);
-    }
-
+    .level-btn:nth-child(1) { background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%); }
+    .level-btn:nth-child(2) { background:linear-gradient(135deg,#4facfe 0%,#00f2fe 100%); }
+    .level-btn:nth-child(3) { background:linear-gradient(135deg,#43e97b 0%,#38f9d7 100%); }
+    .level-btn:active { transform:scale(0.96); }
     .score-board {
-      font-size: 1rem;
-      font-weight: bold;
-      color: #4f46e5;
-      margin-bottom: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #eef2ff;
-      padding: 8px 12px;
-      border-radius: 10px;
+      font-size:1rem; font-weight:bold; color:#4f46e5; margin-bottom:10px;
+      display:flex; justify-content:space-between; align-items:center;
+      background:#eef2ff; padding:8px 12px; border-radius:10px;
     }
-
     .question-area {
-      background: #f8fafc;
-      border: 2px dashed #cbd5e1;
-      border-radius: 16px;
-      padding: 15px 8px;
-      margin-bottom: 10px;
-      min-height: 100px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-wrap: wrap;
-      transition: all 0.3s;
+      background:#f8fafc; border:2px dashed #cbd5e1; border-radius:16px; padding:15px 8px;
+      margin-bottom:10px; min-height:100px; display:flex; justify-content:center; align-items:center; flex-wrap:wrap;
     }
-
-    .simple-question {
-      font-size: 1.6rem;
-      font-weight: 700;
-      color: #1e293b;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-    .object-group {
-      display: inline-flex;
-      gap: 3px;
-      align-items: center;
-    }
-    .object-icon {
-      width: 25px;
-      height: 25px;
-    }
-    .operator {
-      font-size: 1.5rem;
-      color: #f59e0b;
-      font-weight: bold;
-    }
-
+    .simple-question { font-size:1.6rem; font-weight:700; color:#1e293b; display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:center; }
+    .object-group { display:inline-flex; gap:3px; align-items:center; }
+    .object-icon { width:25px; height:25px; }
+    .operator { font-size:1.5rem; color:#f59e0b; font-weight:bold; }
     .answer-inline-input {
-      width: 70px;
-      height: 50px;
-      font-size: 1.6rem;
-      text-align: center;
-      border: 3px solid #cbd5e1;
-      border-radius: 10px;
-      outline: none;
-      background: white;
-      font-weight: bold;
-      letter-spacing: 1px;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      width:70px; height:50px; font-size:1.6rem; text-align:center; border:3px solid #cbd5e1; border-radius:10px;
+      outline:none; background:white; font-weight:bold; letter-spacing:1px; transition:border-color 0.2s, box-shadow 0.2s;
     }
-    .answer-inline-input:focus {
-      border-color: #4f46e5;
-      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
-    }
-
-    .vertical-form-editable {
-      font-family: 'Courier New', Courier, monospace;
-      font-weight: bold;
-      color: #1e293b;
-      text-align: left;
-      background: white;
-      padding: 10px;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    }
-
-    .vertical-row {
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      gap: 2px;
-      margin: 2px 0;
-    }
-
-    .cell {
-      width: 32px;
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      border-radius: 4px;
-    }
-
-    .digit-display {
-      background: transparent;
-      color: #1e293b;
-      user-select: none;
-    }
-
+    .answer-inline-input:focus { border-color:#4f46e5; box-shadow:0 0 0 3px rgba(79,70,229,0.2); }
+    .vertical-form-editable { font-family:'Courier New', Courier, monospace; font-weight:bold; color:#1e293b; text-align:left; background:white; padding:10px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.05); }
+    .vertical-row { display:flex; justify-content:flex-end; align-items:center; gap:2px; margin:2px 0; }
+    .cell { width:32px; height:40px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; border-radius:4px; }
+    .digit-display { background:transparent; color:#1e293b; user-select:none; }
     .digit-input {
-      border: 2px solid #cbd5e1;
-      background: white;
-      color: #1e293b;
-      font-weight: bold;
-      font-size: 1.5rem;
-      text-align: center;
-      padding: 0;
-      margin: 0;
-      outline: none;
-      width: 32px;
-      height: 40px;
-      border-radius: 4px;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      border:2px solid #cbd5e1; background:white; color:#1e293b; font-weight:bold; font-size:1.5rem;
+      text-align:center; padding:0; margin:0; outline:none; width:32px; height:40px; border-radius:4px;
+      transition:border-color 0.2s, box-shadow 0.2s;
     }
-    .digit-input:focus {
-      border-color: #4f46e5;
-      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
-      background: #f0f4ff;
-    }
-
+    .digit-input:focus { border-color:#4f46e5; box-shadow:0 0 0 3px rgba(79,70,229,0.2); background:#f0f4ff; }
     .carry-input {
-      border: 2px solid transparent;
-      background: transparent;
-      color: #1e293b;
-      font-weight: bold;
-      font-size: 1.5rem;
-      text-align: center;
-      padding: 0;
-      margin: 0;
-      outline: none;
-      width: 32px;
-      height: 40px;
-      border-radius: 4px;
-      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+      border:2px solid transparent; background:transparent; color:#1e293b; font-weight:bold; font-size:1.5rem;
+      text-align:center; padding:0; margin:0; outline:none; width:32px; height:40px; border-radius:4px;
+      transition:border-color 0.2s, box-shadow 0.2s, background 0.2s;
     }
-    .carry-input.carry-visible {
-      border-color: #cbd5e1;
-      background: white;
-    }
-    .carry-input:focus {
-      border-color: #4f46e5;
-      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
-      background: #f0f4ff;
-    }
-
-    .plus-cell {
-      font-size: 1.5rem;
-      color: #1e293b;
-      user-select: none;
-    }
-
-    .line-row {
-      border-top: 3px solid #1e293b;
-      margin: 5px 0;
-    }
-
-    .numpad {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 6px;
-      margin-bottom: 10px;
-    }
+    .carry-input.carry-visible { border-color:#cbd5e1; background:white; }
+    .carry-input:focus { border-color:#4f46e5; box-shadow:0 0 0 3px rgba(79,70,229,0.2); background:#f0f4ff; }
+    .plus-cell { font-size:1.5rem; color:#1e293b; user-select:none; }
+    .line-row { border-top:3px solid #1e293b; margin:5px 0; }
+    .numpad { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-bottom:10px; }
     .numpad-btn {
-      background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
-      color: #1e293b;
-      border: 1px solid #a5b4fc;
-      padding: 8px 0;
-      font-size: 1.3rem;
-      font-weight: bold;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: transform 0.15s, box-shadow 0.15s;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.06);
-      user-select: none;
-      -webkit-user-select: none;
+      background:linear-gradient(135deg,#e0e7ff 0%,#c7d2fe 100%); color:#1e293b; border:1px solid #a5b4fc;
+      padding:8px 0; font-size:1.3rem; font-weight:bold; border-radius:8px; cursor:pointer;
+      transition:transform 0.15s, box-shadow 0.15s; box-shadow:0 2px 4px rgba(0,0,0,0.06); user-select:none; -webkit-user-select:none;
     }
-    .numpad-btn:active {
-      transform: scale(0.9);
-      box-shadow: 0 1px 2px rgba(0,0,0,0.08);
-    }
-    .numpad-btn.special {
-      background: linear-gradient(135deg, #fde68a 0%, #f59e0b 100%);
-      border-color: #d97706;
-      color: #78350f;
-      font-size: 1rem;
-    }
-    .numpad-btn.clear {
-      background: linear-gradient(135deg, #fca5a5 0%, #ef4444 100%);
-      border-color: #b91c1c;
-      color: white;
-    }
-
+    .numpad-btn:active { transform:scale(0.9); box-shadow:0 1px 2px rgba(0,0,0,0.08); }
+    .numpad-btn.special { background:linear-gradient(135deg,#fde68a 0%,#f59e0b 100%); border-color:#d97706; color:#78350f; font-size:1rem; }
+    .numpad-btn.clear { background:linear-gradient(135deg,#fca5a5 0%,#ef4444 100%); border-color:#b91c1c; color:white; }
     .submit-btn {
-      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-      color: white;
-      border: none;
-      padding: 14px;
-      font-size: 1.1rem;
-      font-weight: bold;
-      border-radius: 12px;
-      cursor: pointer;
-      width: 100%;
-      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
-      transition: transform 0.2s, box-shadow 0.2s;
+      background:linear-gradient(135deg,#4f46e5 0%,#7c3aed 100%); color:white; border:none; padding:14px;
+      font-size:1.1rem; font-weight:bold; border-radius:12px; cursor:pointer; width:100%;
+      box-shadow:0 4px 12px rgba(79,70,229,0.4); transition:transform 0.2s, box-shadow 0.2s;
     }
-    .submit-btn:active {
-      transform: scale(0.96);
-    }
-
+    .submit-btn:active { transform:scale(0.96); }
     .next-btn {
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      color: white;
-      display: none;
-      margin-top: 10px;
-      width: 100%;
-      padding: 12px;
-      border: none;
-      border-radius: 12px;
-      font-size: 1rem;
-      font-weight: bold;
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+      background:linear-gradient(135deg,#10b981 0%,#059669 100%); color:white; display:none; margin-top:10px;
+      width:100%; padding:12px; border:none; border-radius:12px; font-size:1rem; font-weight:bold;
+      cursor:pointer; box-shadow:0 4px 12px rgba(16,185,129,0.4);
     }
-
     .back-btn {
-      background: #64748b;
-      color: white;
-      border: none;
-      padding: 10px;
-      font-size: 0.9rem;
-      border-radius: 10px;
-      cursor: pointer;
-      margin-top: 10px;
-      width: 100%;
-      transition: background 0.2s;
+      background:#64748b; color:white; border:none; padding:10px; font-size:0.9rem; border-radius:10px;
+      cursor:pointer; margin-top:10px; width:100%;
     }
-    .back-btn:active {
-      background: #475569;
-    }
-
-    .feedback {
-      font-size: 1rem;
-      font-weight: 600;
-      min-height: 30px;
-      margin-top: 10px;
-      padding: 10px;
-      border-radius: 10px;
-      transition: all 0.3s;
-    }
-    .feedback.correct {
-      background: #ecfdf5;
-      color: #065f46;
-      border: 2px solid #10b981;
-      animation: pop 0.3s ease;
-    }
-    .feedback.wrong {
-      background: #fef2f2;
-      color: #991b1b;
-      border: 2px solid #ef4444;
-      animation: shake 0.3s ease;
-    }
-
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-5px); }
-      75% { transform: translateX(5px); }
-    }
-    @keyframes pop {
-      0% { transform: scale(0.9); }
-      100% { transform: scale(1); }
-    }
-
-    .confetti-piece {
-      position: fixed;
-      width: 10px;
-      height: 10px;
-      background: #f44336;
-      top: -20px;
-      z-index: 999;
-      animation: confettiFall 3s linear forwards;
-      pointer-events: none;
-      border-radius: 2px;
-    }
-    @keyframes confettiFall {
-      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-      100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
-    }
-
-    @media (max-width: 400px) {
-      .game-container { padding: 15px 10px; }
-      .menu-title { font-size: 1.4rem; }
-      .level-btn { padding: 12px; font-size: 1rem; }
-      .simple-question { font-size: 1.4rem; }
-      .vertical-form-editable { font-size: 1.2rem; }
-      .numpad-btn { padding: 6px 0; font-size: 1.1rem; }
-      .cell { width: 28px; height: 34px; font-size: 1.2rem; }
-      .digit-input, .carry-input { width: 28px; height: 34px; font-size: 1.2rem; }
-      .answer-inline-input { width: 60px; height: 40px; font-size: 1.3rem; }
+    .back-btn:active { background:#475569; }
+    .feedback { font-size:1rem; font-weight:600; min-height:30px; margin-top:10px; padding:10px; border-radius:10px; transition:all 0.3s; }
+    .feedback.correct { background:#ecfdf5; color:#065f46; border:2px solid #10b981; animation:pop 0.3s ease; }
+    .feedback.wrong { background:#fef2f2; color:#991b1b; border:2px solid #ef4444; animation:shake 0.3s ease; }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+    @keyframes pop { 0%{transform:scale(0.9)} 100%{transform:scale(1)} }
+    .confetti-piece { position:fixed; width:10px; height:10px; background:#f44336; top:-20px; z-index:999; animation:confettiFall 3s linear forwards; pointer-events:none; border-radius:2px; }
+    @keyframes confettiFall { 0%{transform:translateY(0) rotate(0deg); opacity:1;} 100%{transform:translateY(110vh) rotate(720deg); opacity:0;} }
+    @media (max-width:400px) {
+      .game-container { padding:15px 10px; }
+      .menu-title { font-size:1.4rem; }
+      .level-btn { padding:12px; font-size:1rem; }
+      .simple-question { font-size:1.4rem; }
+      .vertical-form-editable { font-size:1.2rem; }
+      .numpad-btn { padding:6px 0; font-size:1.1rem; }
+      .cell { width:28px; height:34px; font-size:1.2rem; }
+      .digit-input, .carry-input { width:28px; height:34px; font-size:1.2rem; }
+      .answer-inline-input { width:60px; height:40px; font-size:1.3rem; }
     }
   </style>
 </head>
 <body>
 
 <div class="game-container">
-  <div class="version-label" id="versionLabel">Versi 1.4</div>
+  <div class="version-label" id="versionLabel">Versi 1.5</div>
 
   <!-- MENU -->
   <div id="menuSection" class="section active">
@@ -491,39 +209,16 @@
 </div>
 
 <script>
-  // ---------- Data Ikon SVG Kartun ----------
   function getObjectSVG(type) {
     const svgs = {
-      apple: `<svg class="object-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="50" cy="60" r="35" fill="#ff5252"/>
-        <rect x="47" y="15" width="6" height="20" rx="3" fill="#8B4513"/>
-        <ellipse cx="60" cy="30" rx="12" ry="6" fill="#4CAF50" transform="rotate(-20 60 30)"/>
-        <circle cx="50" cy="60" r="5" fill="#ffb3b3" opacity="0.5"/>
-      </svg>`,
-      star: `<svg class="object-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <polygon points="50,5 61,35 95,35 68,55 78,90 50,70 22,90 32,55 5,35 39,35" fill="#FFD700" stroke="#FFA000" stroke-width="2"/>
-        <circle cx="40" cy="35" r="4" fill="white" opacity="0.7"/>
-      </svg>`,
-      car: `<svg class="object-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <rect x="15" y="40" width="70" height="30" rx="8" fill="#42A5F5"/>
-        <rect x="30" y="25" width="40" height="15" rx="5" fill="#1E88E5"/>
-        <circle cx="30" cy="70" r="12" fill="#333"/>
-        <circle cx="70" cy="70" r="12" fill="#333"/>
-        <circle cx="30" cy="70" r="5" fill="#ccc"/>
-        <circle cx="70" cy="70" r="5" fill="#ccc"/>
-        <rect x="45" y="42" width="10" height="10" rx="2" fill="#BBDEFB"/>
-      </svg>`,
-      balloon: `<svg class="object-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <ellipse cx="50" cy="40" rx="25" ry="30" fill="#FF7043"/>
-        <path d="M50 70 L50 90" stroke="#8D6E63" stroke-width="3"/>
-        <polygon points="50,40 65,25 55,50" fill="#FFAB91" opacity="0.6"/>
-        <circle cx="45" cy="30" r="5" fill="white" opacity="0.5"/>
-      </svg>`
+      apple: `<svg class="object-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="60" r="35" fill="#ff5252"/><rect x="47" y="15" width="6" height="20" rx="3" fill="#8B4513"/><ellipse cx="60" cy="30" rx="12" ry="6" fill="#4CAF50" transform="rotate(-20 60 30)"/><circle cx="50" cy="60" r="5" fill="#ffb3b3" opacity="0.5"/></svg>`,
+      star: `<svg class="object-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><polygon points="50,5 61,35 95,35 68,55 78,90 50,70 22,90 32,55 5,35 39,35" fill="#FFD700" stroke="#FFA000" stroke-width="2"/><circle cx="40" cy="35" r="4" fill="white" opacity="0.7"/></svg>`,
+      car: `<svg class="object-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect x="15" y="40" width="70" height="30" rx="8" fill="#42A5F5"/><rect x="30" y="25" width="40" height="15" rx="5" fill="#1E88E5"/><circle cx="30" cy="70" r="12" fill="#333"/><circle cx="70" cy="70" r="12" fill="#333"/><circle cx="30" cy="70" r="5" fill="#ccc"/><circle cx="70" cy="70" r="5" fill="#ccc"/><rect x="45" y="42" width="10" height="10" rx="2" fill="#BBDEFB"/></svg>`,
+      balloon: `<svg class="object-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><ellipse cx="50" cy="40" rx="25" ry="30" fill="#FF7043"/><path d="M50 70 L50 90" stroke="#8D6E63" stroke-width="3"/><polygon points="50,40 65,25 55,50" fill="#FFAB91" opacity="0.6"/><circle cx="45" cy="30" r="5" fill="white" opacity="0.5"/></svg>`
     };
     return svgs[type] || svgs.apple;
   }
 
-  // ---------- Pemboleh Ubah Global ----------
   let currentLevel = 'easy';
   let currentQuestion = null;
   let score = 0;
@@ -531,14 +226,13 @@
   const icons = ['apple', 'star', 'car', 'balloon'];
   let currentIcon = 'apple';
   let activeInput = null;
-  let carryInputs = [];   // indeks mengikut lajur (0 = unit, 1 = puluh, 2 = ratus)
+  let carryInputs = [];
   let answerInputs = [];
   let op1Digits = [];
   let op2Digits = [];
   let totalColumns = 0;
   let currentCol = 0;
 
-  // ---------- Paparan ----------
   function showSection(sectionId) {
     document.getElementById('menuSection').classList.remove('active');
     document.getElementById('gameSection').classList.remove('active');
@@ -570,16 +264,12 @@
     activeInput = null;
   }
 
-  // ---------- Fokus & Input Aktif ----------
   function setActiveInput(el) {
-    if (activeInput) {
-      activeInput.classList.remove('active-input');
-    }
+    if (activeInput) activeInput.classList.remove('active-input');
     activeInput = el;
     if (activeInput) {
       activeInput.classList.add('active-input');
       activeInput.focus();
-      // Jika input adalah digit-input, kemaskini currentCol berdasarkan indeks
       const idxInAnswer = answerInputs.indexOf(activeInput);
       if (idxInAnswer !== -1) {
         currentCol = idxInAnswer;
@@ -588,12 +278,10 @@
     }
   }
 
-  // ---------- Numpad ----------
   function pressDigit(digit) {
     if (!activeInput) return;
     if (activeInput.classList.contains('digit-input') || activeInput.classList.contains('carry-input')) {
       activeInput.value = digit;
-      // Jika digit-input, kekal fokus
     } else if (activeInput.classList.contains('answer-inline-input')) {
       if (activeInput.value.length < 3) {
         activeInput.value += digit;
@@ -639,7 +327,6 @@
     }
   }
 
-  // ---------- Penjanaan Soalan ----------
   function generateQuestion() {
     const maxSum = currentLevel === 'easy' ? 10 : currentLevel === 'moderate' ? 20 : 100;
     let n1, n2;
@@ -693,11 +380,12 @@
 
       const inlineInput = document.createElement('input');
       inlineInput.type = 'text';
-      inlineInput.inputMode = 'numeric';
+      inlineInput.inputMode = 'none';
       inlineInput.pattern = '[0-9]*';
       inlineInput.maxLength = 3;
       inlineInput.className = 'answer-inline-input';
       inlineInput.placeholder = '?';
+      inlineInput.readOnly = true; // matikan keyboard peranti
       inlineInput.addEventListener('focus', () => setActiveInput(inlineInput));
       inlineInput.addEventListener('click', () => setActiveInput(inlineInput));
 
@@ -713,7 +401,6 @@
     }
   }
 
-  // ---------- Bentuk Lazim Interaktif ----------
   function buildVerticalForm(n1, n2) {
     const answer = n1 + n2;
     const str1 = String(n1);
@@ -723,7 +410,6 @@
     const answerStr = String(answer);
     totalColumns = Math.max(len1, len2, answerStr.length);
 
-    // Isi digit operan dari kanan ke kiri (unit di indeks 0)
     op1Digits = [];
     op2Digits = [];
     for (let col = 0; col < totalColumns; col++) {
@@ -733,30 +419,29 @@
       op2Digits.push(pos2 >= 0 ? str2[pos2] : '');
     }
 
-    // Bina struktur baris
     const form = document.createElement('div');
     form.className = 'vertical-form-editable';
 
-    // Baris bawa (carry)
+    // Baris bawa
     const carryRow = document.createElement('div');
     carryRow.className = 'vertical-row';
     const carryBlank = document.createElement('div');
     carryBlank.className = 'cell';
     carryRow.appendChild(carryBlank);
-
     carryInputs = [];
     for (let col = totalColumns - 1; col >= 0; col--) {
       const input = document.createElement('input');
       input.type = 'text';
-      input.inputMode = 'numeric';
+      input.inputMode = 'none';
       input.pattern = '[0-9]*';
       input.maxLength = 1;
       input.className = 'cell carry-input';
+      input.readOnly = true;
       input.value = '';
       input.addEventListener('focus', () => setActiveInput(input));
       input.addEventListener('click', () => setActiveInput(input));
       carryRow.appendChild(input);
-      carryInputs[col] = input; // simpan dengan indeks kolum (0=unit)
+      carryInputs[col] = input;
     }
     form.appendChild(carryRow);
 
@@ -805,15 +490,15 @@
     const answerBlank = document.createElement('div');
     answerBlank.className = 'cell';
     answerRow.appendChild(answerBlank);
-
     answerInputs = [];
     for (let col = totalColumns - 1; col >= 0; col--) {
       const input = document.createElement('input');
       input.type = 'text';
-      input.inputMode = 'numeric';
+      input.inputMode = 'none';
       input.pattern = '[0-9]*';
       input.maxLength = 1;
       input.className = 'cell digit-input answer-input';
+      input.readOnly = true;
       input.value = '';
       input.addEventListener('focus', () => setActiveInput(input));
       input.addEventListener('click', () => setActiveInput(input));
@@ -822,15 +507,12 @@
     }
     form.appendChild(answerRow);
 
-    // Fokus awal ke unit (indeks 0)
     setActiveInput(answerInputs[0]);
     currentCol = 0;
     updateActionButton();
-
     return form;
   }
 
-  // ---------- Proses Lajur Semasa (untuk bentuk lazim) ----------
   function processCurrentColumn() {
     const input = answerInputs[currentCol];
     if (!input || input.value.trim() === '') {
@@ -839,28 +521,12 @@
       feedback.className = 'feedback wrong';
       return false;
     }
-
     const digit1 = parseInt(op1Digits[currentCol]) || 0;
     const digit2 = parseInt(op2Digits[currentCol]) || 0;
     const carryInput = carryInputs[currentCol];
     const currentCarry = parseInt(carryInput.value) || 0;
     const actualSum = digit1 + digit2 + currentCarry;
     const actualCarry = Math.floor(actualSum / 10);
-
-    // Jika pengguna masukkan lebih daripada satu digit, asingkan
-    const rawValue = input.value.trim();
-    let onesDigit;
-    if (rawValue.length > 1) {
-      const full = parseInt(rawValue, 10);
-      onesDigit = full % 10;
-      const carryFromFull = Math.floor(full / 10);
-      input.value = String(onesDigit);
-      // Gunakan carry sebenar, bukan daripada input pengguna, kerana carry ditentukan oleh operan
-    } else {
-      onesDigit = parseInt(rawValue, 10);
-    }
-
-    // Tetapkan carry ke lajur berikutnya (jika ada)
     if (currentCol + 1 < totalColumns) {
       const nextCarryInput = carryInputs[currentCol + 1];
       if (actualCarry > 0) {
@@ -871,25 +537,18 @@
         nextCarryInput.classList.remove('carry-visible');
       }
     }
-
     return true;
   }
 
-  // ---------- Pengendali Butang Utama ----------
   function handleAction() {
     const feedback = document.getElementById('feedbackText');
     if (currentLevel === 'hard') {
-      // Proses lajur semasa dahulu
       if (!processCurrentColumn()) return;
-
       if (currentCol < totalColumns - 1) {
-        // Bergerak ke lajur seterusnya
         currentCol++;
-        const nextInput = answerInputs[currentCol];
-        setActiveInput(nextInput);
+        setActiveInput(answerInputs[currentCol]);
         updateActionButton();
       } else {
-        // Sudah di lajur terakhir, semak jawapan penuh
         checkAnswer();
       }
     } else {
@@ -897,18 +556,22 @@
     }
   }
 
-  // ---------- Semakan Jawapan ----------
   function checkAnswer() {
     const q = currentQuestion;
     const feedback = document.getElementById('feedbackText');
     let userAnswer;
 
     if (currentLevel === 'hard') {
-      const answerDigits = answerInputs.map(inp => inp.value.trim());
-      if (answerDigits.some(d => d === '')) {
-        feedback.textContent = '📝 Lengkapkan semua digit jawapan.';
-        feedback.className = 'feedback wrong';
-        return;
+      // Bina jawapan dari digit paling kiri (tertinggi) ke kanan
+      const answerDigits = [];
+      for (let col = totalColumns - 1; col >= 0; col--) {
+        const inp = answerInputs[col];
+        if (!inp || inp.value.trim() === '') {
+          feedback.textContent = '📝 Lengkapkan semua digit jawapan.';
+          feedback.className = 'feedback wrong';
+          return;
+        }
+        answerDigits.push(inp.value.trim());
       }
       userAnswer = parseInt(answerDigits.join(''), 10);
     } else {
@@ -949,7 +612,6 @@
     document.getElementById('nextBtn').style.display = 'inline-block';
   }
 
-  // ---------- Penerangan Bawa Ke Atas ----------
   function explainAddition(n1, n2) {
     const s1 = String(n1).split('').reverse();
     const s2 = String(n2).split('').reverse();
@@ -957,7 +619,6 @@
     const placeNames = ['sa', 'puluh', 'ratus'];
     const steps = [];
     const maxLen = Math.max(s1.length, s2.length);
-
     for (let i = 0; i < maxLen || carry > 0; i++) {
       const d1 = i < s1.length ? parseInt(s1[i], 10) : 0;
       const d2 = i < s2.length ? parseInt(s2[i], 10) : 0;
@@ -965,23 +626,17 @@
       const digit = total % 10;
       const newCarry = Math.floor(total / 10);
       const place = placeNames[i] || `tempat ${i + 1}`;
-
       let step = `${place}: ${d1} + ${d2}`;
       if (carry > 0) step += ` + ${carry} (bawa)`;
       step += ` = ${total}`;
-      if (newCarry > 0) {
-        step += `, tulis ${digit}, bawa ${newCarry}`;
-      } else {
-        step += `, tulis ${digit}`;
-      }
+      if (newCarry > 0) step += `, tulis ${digit}, bawa ${newCarry}`;
+      else step += `, tulis ${digit}`;
       steps.push(step);
       carry = newCarry;
     }
-
     return '🛠️ Cara kira: ' + steps.join('; ') + '.';
   }
 
-  // ---------- Confetti ----------
   function launchConfetti() {
     const colors = ['#f44336', '#e91e63', '#9c27b0', '#3f51b5', '#03a9f4', '#4caf50', '#ffeb3b', '#ff9800'];
     for (let i = 0; i < 60; i++) {
@@ -997,16 +652,21 @@
     }
   }
 
-  // ---------- Navigasi Soalan ----------
   function nextQuestion() {
     generateQuestion();
   }
 
-  // ---------- Pendaftaran Service Worker (PWA) ----------
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js')
-        .then(reg => console.log('Service Worker berjaya didaftarkan:', reg.scope))
+      navigator.serviceWorker.register('./sw.js', { scope: './' })
+        .then(reg => {
+          console.log('Service Worker berjaya didaftarkan:', reg.scope);
+          if (reg.waiting) reg.waiting.postMessage('SKIP_WAITING');
+          navigator.serviceWorker.addEventListener('controllerchange', () => {
+            window.location.reload();
+          });
+          setInterval(() => reg.update(), 300000);
+        })
         .catch(err => console.warn('Pendaftaran SW gagal:', err));
     });
   }
