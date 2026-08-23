@@ -1,13 +1,12 @@
-const CACHE_NAME = 'permainan-tambah-v3'; // TUKAR versi ini SETIAP KALI anda kemas kini fail
+const CACHE_NAME = 'permainan-tambah-v3'; // Naikkan versi jika berubah
 
-// Fail yang perlu di-cache untuk kegunaan luar talian
 const urlsToCache = [
   './',
   './index.html'
 ];
 
 self.addEventListener('install', event => {
-  self.skipWaiting(); // Aktifkan SW baru serta-merta
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(urlsToCache))
@@ -22,27 +21,21 @@ self.addEventListener('activate', event => {
       );
     })
   );
-  return self.clients.claim(); // Kawal semua tab sedia ada
+  return self.clients.claim();
 });
 
 self.addEventListener('fetch', event => {
-  // Untuk permintaan navigasi (halaman utama), cuba rangkaian dahulu
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request)
         .then(response => {
-          // Simpan salinan terkini ke cache
           const clone = response.clone();
           caches.open(CACHE_NAME).then(cache => cache.put('./index.html', clone));
           return response;
         })
-        .catch(() => {
-          // Jika tiada rangkaian, guna cache
-          return caches.match('./index.html');
-        })
+        .catch(() => caches.match('./index.html'))
     );
   } else {
-    // Untuk aset lain, guna cache-first (tetapi kemas kini jika berjaya)
     event.respondWith(
       caches.match(event.request).then(cachedResponse => {
         const fetchPromise = fetch(event.request).then(networkResponse => {
