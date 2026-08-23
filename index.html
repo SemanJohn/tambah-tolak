@@ -123,8 +123,8 @@
       border: 3px dashed #cbd5e1;
       border-radius: 20px;
       padding: 20px 10px;
-      margin-bottom: 20px;
-      min-height: 120px;
+      margin-bottom: 15px;
+      min-height: 100px;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -133,7 +133,7 @@
     }
 
     .simple-question {
-      font-size: 2.5rem;
+      font-size: 2rem;
       font-weight: 700;
       color: #1e293b;
       display: flex;
@@ -149,18 +149,18 @@
       align-items: center;
     }
     .object-icon {
-      width: 35px;
-      height: 35px;
+      width: 30px;
+      height: 30px;
     }
     .operator {
-      font-size: 2rem;
+      font-size: 1.8rem;
       color: #f59e0b;
       font-weight: bold;
     }
 
     .vertical-form {
       font-family: 'Courier New', Courier, monospace;
-      font-size: 1.8rem;
+      font-size: 1.6rem;
       font-weight: bold;
       color: #1e293b;
       white-space: pre;
@@ -172,48 +172,71 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
 
-    .input-group {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    input[type="number"] {
-      padding: 14px;
-      font-size: 1.5rem;
-      width: 140px;
-      text-align: center;
+    /* Paparan jawapan */
+    .answer-display {
+      background: #ffffff;
       border: 3px solid #cbd5e1;
       border-radius: 12px;
-      outline: none;
-      transition: border-color 0.2s;
-      background: white;
+      padding: 12px;
+      font-size: 2rem;
       font-weight: bold;
-    }
-    input[type="number"]:focus {
-      border-color: #4f46e5;
-      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+      color: #1e293b;
+      min-height: 60px;
+      width: 100%;
+      margin-bottom: 15px;
+      text-align: right;
+      word-break: break-all;
+      letter-spacing: 2px;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
     }
 
-    button {
-      padding: 14px 20px;
-      font-size: 1.1rem;
-      font-weight: bold;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: transform 0.2s, opacity 0.2s;
-      touch-action: manipulation;
+    /* Numpad */
+    .numpad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 15px;
     }
-    button:active {
-      transform: scale(0.94);
+    .numpad-btn {
+      background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+      color: #1e293b;
+      border: 2px solid #a5b4fc;
+      padding: 15px 0;
+      font-size: 1.8rem;
+      font-weight: bold;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .numpad-btn:active {
+      transform: scale(0.92);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .numpad-btn.special {
+      background: linear-gradient(135deg, #fde68a 0%, #f59e0b 100%);
+      border-color: #d97706;
+      color: #78350f;
+      font-size: 1.2rem;
+    }
+    .numpad-btn.clear {
+      background: linear-gradient(135deg, #fca5a5 0%, #ef4444 100%);
+      border-color: #b91c1c;
+      color: white;
     }
 
     .submit-btn {
       background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
       color: white;
+      border: none;
+      padding: 16px;
+      font-size: 1.3rem;
+      font-weight: bold;
+      border-radius: 14px;
+      cursor: pointer;
+      width: 100%;
       box-shadow: 0 5px 15px rgba(79, 70, 229, 0.4);
     }
 
@@ -222,6 +245,7 @@
       color: white;
       display: none;
       margin-top: 15px;
+      width: 100%;
       box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
     }
 
@@ -285,9 +309,9 @@
     /* Responsive tweaks */
     @media (max-width: 400px) {
       .game-container { padding: 20px 15px; }
-      .simple-question { font-size: 2rem; }
-      .vertical-form { font-size: 1.4rem; }
-      input[type="number"] { width: 110px; font-size: 1.3rem; }
+      .simple-question { font-size: 1.5rem; }
+      .vertical-form { font-size: 1.2rem; }
+      .numpad-btn { padding: 12px 0; font-size: 1.5rem; }
     }
   </style>
 </head>
@@ -337,10 +361,26 @@
 
     <div class="question-area" id="questionArea"></div>
 
-    <div class="input-group">
-      <input type="number" id="answerInput" placeholder="Jawapan" autofocus inputmode="numeric">
-      <button class="submit-btn" onclick="checkAnswer()">Semak</button>
+    <!-- Paparan Jawapan -->
+    <div class="answer-display" id="answerDisplay">0</div>
+
+    <!-- Numpad -->
+    <div class="numpad">
+      <button class="numpad-btn" onclick="pressDigit('1')">1</button>
+      <button class="numpad-btn" onclick="pressDigit('2')">2</button>
+      <button class="numpad-btn" onclick="pressDigit('3')">3</button>
+      <button class="numpad-btn" onclick="pressDigit('4')">4</button>
+      <button class="numpad-btn" onclick="pressDigit('5')">5</button>
+      <button class="numpad-btn" onclick="pressDigit('6')">6</button>
+      <button class="numpad-btn" onclick="pressDigit('7')">7</button>
+      <button class="numpad-btn" onclick="pressDigit('8')">8</button>
+      <button class="numpad-btn" onclick="pressDigit('9')">9</button>
+      <button class="numpad-btn special" onclick="pressBackspace()">⌫</button>
+      <button class="numpad-btn" onclick="pressDigit('0')">0</button>
+      <button class="numpad-btn special clear" onclick="clearAnswer()">C</button>
     </div>
+
+    <button class="submit-btn" onclick="checkAnswer()">✔ Semak</button>
 
     <div class="feedback" id="feedbackText"></div>
     <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Soalan Seterusnya ➔</button>
@@ -385,8 +425,10 @@
   let currentLevel = '';
   let currentQuestion = null;
   let score = 0;
+  let currentInput = '0';
   const icons = ['apple', 'star', 'car', 'balloon'];
   let currentIcon = 'apple';
+  let answered = false;
 
   // ---------- Fungsi Skrin ----------
   function startLevel(level) {
@@ -408,10 +450,46 @@
     document.getElementById('gameScreen').classList.remove('active');
     document.getElementById('startScreen').classList.add('active');
     currentQuestion = null;
+    currentInput = '0';
+    updateDisplay();
     document.getElementById('feedbackText').textContent = '';
     document.getElementById('feedbackText').className = 'feedback';
     document.getElementById('nextBtn').style.display = 'none';
-    document.getElementById('answerInput').value = '';
+    answered = false;
+  }
+
+  // ---------- Numpad Functions ----------
+  function pressDigit(digit) {
+    if (answered) return;
+    if (currentInput === '0') {
+      currentInput = digit;
+    } else {
+      // Elakkan terlalu panjang
+      if (currentInput.replace('-', '').length < 3) {
+        currentInput += digit;
+      }
+    }
+    updateDisplay();
+  }
+
+  function pressBackspace() {
+    if (answered) return;
+    if (currentInput.length > 1) {
+      currentInput = currentInput.slice(0, -1);
+    } else {
+      currentInput = '0';
+    }
+    updateDisplay();
+  }
+
+  function clearAnswer() {
+    if (answered) return;
+    currentInput = '0';
+    updateDisplay();
+  }
+
+  function updateDisplay() {
+    document.getElementById('answerDisplay').textContent = currentInput;
   }
 
   // ---------- Penjanaan Soalan ----------
@@ -424,6 +502,9 @@
       n2 = Math.floor(Math.random() * maxN2) + 1;
     } while (n1 + n2 > maxSum || n1 < 1 || n2 < 1);
     currentQuestion = { n1, n2, answer: n1 + n2 };
+    currentInput = '0';
+    answered = false;
+    updateDisplay();
     renderQuestion();
   }
 
@@ -433,13 +514,11 @@
     area.innerHTML = '';
 
     if (currentLevel === 'hard') {
-      // Bentuk lazim
       const pre = document.createElement('pre');
       pre.className = 'vertical-form';
       pre.textContent = buildVertical(q.n1, q.n2);
       area.appendChild(pre);
     } else {
-      // Paparan dengan ikon SVG
       currentIcon = icons[Math.floor(Math.random() * icons.length)];
       const container = document.createElement('div');
       container.className = 'simple-question';
@@ -471,11 +550,9 @@
       area.appendChild(container);
     }
 
-    document.getElementById('answerInput').value = '';
     document.getElementById('feedbackText').textContent = '';
     document.getElementById('feedbackText').className = 'feedback';
     document.getElementById('nextBtn').style.display = 'none';
-    document.getElementById('answerInput').focus();
   }
 
   // ---------- Bentuk Lazim ----------
@@ -506,16 +583,25 @@
 
   // ---------- Semakan Jawapan ----------
   function checkAnswer() {
-    const input = document.getElementById('answerInput');
-    const userAnswer = Number(input.value);
+    if (answered) return;
+    if (currentInput === '0' && currentQuestion.answer !== 0) {
+      const feedback = document.getElementById('feedbackText');
+      feedback.textContent = '📝 Masukkan jawapan dahulu.';
+      feedback.className = 'feedback wrong';
+      return;
+    }
+
+    const userAnswer = parseInt(currentInput, 10);
     const q = currentQuestion;
     const feedback = document.getElementById('feedbackText');
 
-    if (input.value.trim() === '' || isNaN(userAnswer)) {
+    if (isNaN(userAnswer)) {
       feedback.textContent = '📝 Sila masukkan jawapan.';
       feedback.className = 'feedback wrong';
       return;
     }
+
+    answered = true;
 
     if (userAnswer === q.answer) {
       score += 10;
@@ -534,7 +620,6 @@
     }
 
     document.getElementById('nextBtn').style.display = 'inline-block';
-    input.blur();
   }
 
   // ---------- Penerangan Bawa Ke Atas ----------
@@ -589,13 +674,6 @@
   function nextQuestion() {
     generateQuestion();
   }
-
-  // ---------- Event Listener untuk Enter ----------
-  document.getElementById('answerInput').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-      checkAnswer();
-    }
-  });
 
   // ---------- PWA: Service Worker Registration ----------
   if ('serviceWorker' in navigator) {
