@@ -1,11 +1,16 @@
-const CACHE_NAME = 'permainan-tambah-v2'; // Naikkan versi jika ada perubahan
+const CACHE_NAME = 'permainan-tambah-v3'; // TUKAR versi ini SETIAP KALI anda kemas kini fail
+
+// Fail yang perlu di-cache untuk kegunaan luar talian
+const urlsToCache = [
+  './',
+  './index.html'
+];
 
 self.addEventListener('install', event => {
-  self.skipWaiting();
+  self.skipWaiting(); // Aktifkan SW baru serta-merta
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(['./', './index.html']);
-    })
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(urlsToCache))
   );
 });
 
@@ -17,23 +22,35 @@ self.addEventListener('activate', event => {
       );
     })
   );
-  return self.clients.claim();
+  return self.clients.claim(); // Kawal semua tab sedia ada
 });
 
 self.addEventListener('fetch', event => {
+  // Untuk permintaan navigasi (halaman utama), cuba rangkaian dahulu
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request)
         .then(response => {
+          // Simpan salinan terkini ke cache
           const clone = response.clone();
           caches.open(CACHE_NAME).then(cache => cache.put('./index.html', clone));
           return response;
         })
-        .catch(() => caches.match('./index.html'))
+        .catch(() => {
+          // Jika tiada rangkaian, guna cache
+          return caches.match('./index.html');
+        })
     );
   } else {
+    // Untuk aset lain, guna cache-first (tetapi kemas kini jika berjaya)
     event.respondWith(
-      caches.match(event.request).then(response => response || fetch(event.request))
+      caches.match(event.request).then(cachedResponse => {
+        const fetchPromise = fetch(event.request).then(networkResponse => {
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, networkResponse.clone()));
+          return networkResponse;
+        });
+        return cachedResponse || fetchPromise;
+      })
     );
   }
 });
