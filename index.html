@@ -39,6 +39,19 @@
       overflow: hidden;
     }
 
+    /* Penunjuk versi kecil di kiri atas */
+    .version-label {
+      position: absolute;
+      top: 10px;
+      left: 15px;
+      font-size: 0.7rem;
+      color: #94a3b8;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      z-index: 10;
+      pointer-events: none;
+    }
+
     /* Kepala dengan maskot dan tajuk */
     .header {
       display: flex;
@@ -327,6 +340,9 @@
 <body>
 
 <div class="game-container">
+  <!-- Penunjuk versi -->
+  <div class="version-label" id="versionLabel">Versi 1.1</div>
+
   <!-- Kepala dengan maskot -->
   <div class="header">
     <div class="mascot">
@@ -346,7 +362,7 @@
     <h1>🔢 Tambah Ceria!</h1>
   </div>
 
-  <!-- Butang pilih tahap (sentiasa kelihatan) -->
+  <!-- Butang pilih tahap -->
   <div class="level-buttons">
     <button class="level-btn" onclick="startLevel('easy')">🌱 Mudah (1–10)</button>
     <button class="level-btn" onclick="startLevel('moderate')">🚀 Sederhana (1–20)</button>
@@ -455,7 +471,6 @@
   function pressDigit(digit) {
     if (answered) return;
     const input = document.getElementById('answerInput');
-    // Elakkan nombor bermula dengan 0 berulang
     if (input.value === '0') {
       input.value = digit;
     } else {
