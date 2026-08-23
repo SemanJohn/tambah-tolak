@@ -2,69 +2,176 @@
 <html lang="ms">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Permainan Tambah Interaktif</title>
+
+  <!-- PWA Meta Tags -->
+  <link rel="manifest" href='data:application/manifest+json,{"name":"Permainan Tambah","short_name":"Tambah","start_url":".","display":"standalone","background_color":"#f0f4ff","theme_color":"#4f46e5","icons":[{"src":"data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ctext y=\'.9em\' font-size=\'90\'%3E🔢%3C/text%3E%3C/svg%3E","sizes":"any","type":"image/svg+xml"}]}'>
+
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #eef2f7;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 100vh;
-      margin: 0;
-      padding: 20px;
+      padding: 15px;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
     }
-    .game-card {
+
+    .game-container {
       background: white;
-      padding: 30px;
-      border-radius: 16px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      border-radius: 30px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
       width: 100%;
-      max-width: 600px;
+      max-width: 500px;
+      padding: 25px 20px;
       text-align: center;
+      position: relative;
+      overflow: hidden;
     }
+
     .screen {
       display: none;
     }
     .screen.active {
       display: block;
+      animation: fadeIn 0.3s ease;
     }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Mascot */
+    .mascot {
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 15px;
+      animation: bounce 2s infinite;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
     h1 {
       color: #1e293b;
-      margin-bottom: 20px;
+      font-size: 1.8rem;
+      margin-bottom: 10px;
     }
-    .score-board {
-      font-size: 1.1rem;
+
+    .level-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    .level-btn {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white;
+      border: none;
+      padding: 16px;
+      font-size: 1.2rem;
       font-weight: bold;
-      color: #334155;
-      margin-bottom: 20px;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
     }
+    .level-btn:nth-child(2) {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+    }
+    .level-btn:nth-child(3) {
+      background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+      box-shadow: 0 5px 15px rgba(67, 233, 123, 0.4);
+    }
+    .level-btn:active {
+      transform: scale(0.96);
+    }
+
+    .score-board {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #4f46e5;
+      margin-bottom: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #eef2ff;
+      padding: 10px 15px;
+      border-radius: 12px;
+    }
+
     .question-area {
       background: #f8fafc;
-      border: 2px dashed #cbd5e1;
-      border-radius: 12px;
-      padding: 20px;
+      border: 3px dashed #cbd5e1;
+      border-radius: 20px;
+      padding: 20px 10px;
       margin-bottom: 20px;
-      min-height: 100px;
+      min-height: 120px;
       display: flex;
       justify-content: center;
       align-items: center;
+      flex-wrap: wrap;
+      transition: all 0.3s;
     }
+
     .simple-question {
       font-size: 2.5rem;
       font-weight: 700;
       color: #1e293b;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
     }
+
+    .object-group {
+      display: inline-flex;
+      gap: 5px;
+      align-items: center;
+    }
+    .object-icon {
+      width: 35px;
+      height: 35px;
+    }
+    .operator {
+      font-size: 2rem;
+      color: #f59e0b;
+      font-weight: bold;
+    }
+
     .vertical-form {
       font-family: 'Courier New', Courier, monospace;
-      font-size: 2rem;
+      font-size: 1.8rem;
       font-weight: bold;
       color: #1e293b;
-      text-align: left;
       white-space: pre;
-      line-height: 1.3;
+      line-height: 1.4;
+      text-align: left;
+      background: white;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
+
     .input-group {
       display: flex;
       gap: 10px;
@@ -72,125 +179,224 @@
       align-items: center;
       flex-wrap: wrap;
     }
+
     input[type="number"] {
-      padding: 12px;
+      padding: 14px;
       font-size: 1.5rem;
-      width: 150px;
+      width: 140px;
       text-align: center;
-      border: 2px solid #cbd5e1;
-      border-radius: 8px;
+      border: 3px solid #cbd5e1;
+      border-radius: 12px;
       outline: none;
       transition: border-color 0.2s;
+      background: white;
+      font-weight: bold;
     }
     input[type="number"]:focus {
-      border-color: #3b82f6;
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
     }
+
     button {
-      padding: 12px 20px;
-      font-size: 1rem;
+      padding: 14px 20px;
+      font-size: 1.1rem;
       font-weight: bold;
       border: none;
-      border-radius: 8px;
+      border-radius: 12px;
       cursor: pointer;
-      transition: background 0.2s, transform 0.1s;
+      transition: transform 0.2s, opacity 0.2s;
+      touch-action: manipulation;
     }
+    button:active {
+      transform: scale(0.94);
+    }
+
     .submit-btn {
-      background: #3b82f6;
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
       color: white;
+      box-shadow: 0 5px 15px rgba(79, 70, 229, 0.4);
     }
-    .submit-btn:hover {
-      background: #2563eb;
-      transform: translateY(-2px);
-    }
+
     .next-btn {
-      background: #10b981;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
       color: white;
       display: none;
       margin-top: 15px;
+      box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
     }
-    .next-btn:hover {
-      background: #0f9d6e;
-      transform: translateY(-2px);
-    }
-    .feedback {
-      font-size: 1.1rem;
-      font-weight: 600;
-      min-height: 30px;
-      margin-top: 10px;
-      padding: 10px;
-      border-radius: 8px;
-    }
-    .feedback.correct {
-      background: #ecfdf5;
-      color: #10b981;
-    }
-    .feedback.wrong {
-      background: #fef2f2;
-      color: #ef4444;
-    }
-    .level-btn {
-      background: #f1f5f9;
-      color: #1e293b;
-      margin: 5px;
-      border: 2px solid #cbd5e1;
-    }
-    .level-btn:hover {
-      background: #e2e8f0;
-      border-color: #94a3b8;
-    }
+
     .back-btn {
       background: #64748b;
       color: white;
       margin-top: 10px;
+      font-size: 0.9rem;
+      padding: 10px 16px;
     }
-    .back-btn:hover {
-      background: #475569;
+
+    .feedback {
+      font-size: 1.1rem;
+      font-weight: 600;
+      min-height: 30px;
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 12px;
+      transition: all 0.3s;
+    }
+    .feedback.correct {
+      background: #ecfdf5;
+      color: #065f46;
+      border: 2px solid #10b981;
+      animation: pop 0.3s ease;
+    }
+    .feedback.wrong {
+      background: #fef2f2;
+      color: #991b1b;
+      border: 2px solid #ef4444;
+      animation: shake 0.3s ease;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+    @keyframes pop {
+      0% { transform: scale(0.9); }
+      100% { transform: scale(1); }
+    }
+
+    /* Confetti */
+    .confetti-piece {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      background: #f44336;
+      top: -20px;
+      z-index: 999;
+      animation: confettiFall 3s linear forwards;
+      pointer-events: none;
+      border-radius: 2px;
+    }
+    @keyframes confettiFall {
+      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+    }
+
+    /* Responsive tweaks */
+    @media (max-width: 400px) {
+      .game-container { padding: 20px 15px; }
+      .simple-question { font-size: 2rem; }
+      .vertical-form { font-size: 1.4rem; }
+      input[type="number"] { width: 110px; font-size: 1.3rem; }
     }
   </style>
 </head>
 <body>
 
-<div class="game-card">
+<div class="game-container">
   <!-- Skrin Mula -->
   <div id="startScreen" class="screen active">
-    <h1>🔢 Permainan Tambah Interaktif</h1>
-    <p>Pilih tahap kesukaran:</p>
-    <button class="level-btn" onclick="startLevel('easy')">Mudah (1–10)</button>
-    <button class="level-btn" onclick="startLevel('moderate')">Sederhana (1–20)</button>
-    <button class="level-btn" onclick="startLevel('hard')">Sukar (1–100, bentuk lazim)</button>
+    <!-- Maskot Kartun SVG -->
+    <div class="mascot">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="45" r="35" fill="#FFD93D" stroke="#F9A825" stroke-width="3"/>
+        <circle cx="40" cy="40" r="5" fill="white"/>
+        <circle cx="60" cy="40" r="5" fill="white"/>
+        <circle cx="42" cy="40" r="2.5" fill="black"/>
+        <circle cx="62" cy="40" r="2.5" fill="black"/>
+        <path d="M42 55 Q50 65 58 55" stroke="black" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <rect x="20" y="20" width="12" height="8" rx="3" fill="#4CAF50" transform="rotate(-30 26 24)"/>
+        <rect x="68" y="20" width="12" height="8" rx="3" fill="#4CAF50" transform="rotate(30 74 24)"/>
+        <text x="20" y="90" font-size="18" fill="#1e293b" font-weight="bold">+</text>
+        <text x="65" y="90" font-size="18" fill="#1e293b" font-weight="bold">=</text>
+      </svg>
+    </div>
+
+    <h1>🔢 Tambah Ceria!</h1>
+    <p style="color:#475569; margin-bottom:10px;">Pilih tahap kesukaran:</p>
+
+    <div class="level-buttons">
+      <button class="level-btn" onclick="startLevel('easy')">
+        <span>🌱</span> Mudah (1–10)
+      </button>
+      <button class="level-btn" onclick="startLevel('moderate')">
+        <span>🚀</span> Sederhana (1–20)
+      </button>
+      <button class="level-btn" onclick="startLevel('hard')">
+        <span>🧠</span> Sukar (1–100, bentuk lazim)
+      </button>
+    </div>
   </div>
 
   <!-- Skrin Permainan -->
   <div id="gameScreen" class="screen">
     <div class="score-board">
-      Tahap: <span id="levelLabel"></span> | Skor: <span id="score">0</span>
+      <span>🏆 Skor: <span id="score">0</span></span>
+      <span id="levelLabel" style="background:white; padding:4px 10px; border-radius:8px;"></span>
     </div>
+
     <div class="question-area" id="questionArea"></div>
 
     <div class="input-group">
-      <input type="number" id="answerInput" placeholder="Jawapan" autofocus>
+      <input type="number" id="answerInput" placeholder="Jawapan" autofocus inputmode="numeric">
       <button class="submit-btn" onclick="checkAnswer()">Semak</button>
     </div>
 
     <div class="feedback" id="feedbackText"></div>
     <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Soalan Seterusnya ➔</button>
-    <button class="back-btn" onclick="backToMenu()">Menu Utama</button>
+    <button class="back-btn" onclick="backToMenu()">← Menu Utama</button>
   </div>
 </div>
 
 <script>
+  // ---------- Data Ikon SVG Kartun ----------
+  function getObjectSVG(type) {
+    const svgs = {
+      apple: `<svg class="object-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="60" r="35" fill="#ff5252"/>
+        <rect x="47" y="15" width="6" height="20" rx="3" fill="#8B4513"/>
+        <ellipse cx="60" cy="30" rx="12" ry="6" fill="#4CAF50" transform="rotate(-20 60 30)"/>
+        <circle cx="50" cy="60" r="5" fill="#ffb3b3" opacity="0.5"/>
+      </svg>`,
+      star: `<svg class="object-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="50,5 61,35 95,35 68,55 78,90 50,70 22,90 32,55 5,35 39,35" fill="#FFD700" stroke="#FFA000" stroke-width="2"/>
+        <circle cx="40" cy="35" r="4" fill="white" opacity="0.7"/>
+      </svg>`,
+      car: `<svg class="object-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <rect x="15" y="40" width="70" height="30" rx="8" fill="#42A5F5"/>
+        <rect x="30" y="25" width="40" height="15" rx="5" fill="#1E88E5"/>
+        <circle cx="30" cy="70" r="12" fill="#333"/>
+        <circle cx="70" cy="70" r="12" fill="#333"/>
+        <circle cx="30" cy="70" r="5" fill="#ccc"/>
+        <circle cx="70" cy="70" r="5" fill="#ccc"/>
+        <rect x="45" y="42" width="10" height="10" rx="2" fill="#BBDEFB"/>
+      </svg>`,
+      balloon: `<svg class="object-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="50" cy="40" rx="25" ry="30" fill="#FF7043"/>
+        <path d="M50 70 L50 90" stroke="#8D6E63" stroke-width="3"/>
+        <polygon points="50,40 65,25 55,50" fill="#FFAB91" opacity="0.6"/>
+        <circle cx="45" cy="30" r="5" fill="white" opacity="0.5"/>
+      </svg>`
+    };
+    return svgs[type] || svgs.apple;
+  }
+
+  // ---------- Pemboleh Ubah Global ----------
   let currentLevel = '';
   let currentQuestion = null;
   let score = 0;
+  const icons = ['apple', 'star', 'car', 'balloon'];
+  let currentIcon = 'apple';
 
+  // ---------- Fungsi Skrin ----------
   function startLevel(level) {
     currentLevel = level;
     score = 0;
     document.getElementById('score').textContent = score;
     const levelNames = {
-      easy: 'Mudah (1–10)',
-      moderate: 'Sederhana (1–20)',
-      hard: 'Sukar (1–100)'
+      easy: '🌱 Mudah (1–10)',
+      moderate: '🚀 Sederhana (1–20)',
+      hard: '🧠 Sukar (1–100)'
     };
     document.getElementById('levelLabel').textContent = levelNames[level];
     document.getElementById('startScreen').classList.remove('active');
@@ -205,8 +411,10 @@
     document.getElementById('feedbackText').textContent = '';
     document.getElementById('feedbackText').className = 'feedback';
     document.getElementById('nextBtn').style.display = 'none';
+    document.getElementById('answerInput').value = '';
   }
 
+  // ---------- Penjanaan Soalan ----------
   function generateQuestion() {
     const maxSum = currentLevel === 'easy' ? 10 : currentLevel === 'moderate' ? 20 : 100;
     let n1, n2;
@@ -222,11 +430,47 @@
   function renderQuestion() {
     const q = currentQuestion;
     const area = document.getElementById('questionArea');
+    area.innerHTML = '';
+
     if (currentLevel === 'hard') {
-      area.innerHTML = `<pre class="vertical-form">${buildVertical(q.n1, q.n2)}</pre>`;
+      // Bentuk lazim
+      const pre = document.createElement('pre');
+      pre.className = 'vertical-form';
+      pre.textContent = buildVertical(q.n1, q.n2);
+      area.appendChild(pre);
     } else {
-      area.innerHTML = `<div class="simple-question">${q.n1} + ${q.n2} = ?</div>`;
+      // Paparan dengan ikon SVG
+      currentIcon = icons[Math.floor(Math.random() * icons.length)];
+      const container = document.createElement('div');
+      container.className = 'simple-question';
+
+      const group1 = document.createElement('span');
+      group1.className = 'object-group';
+      for (let i = 0; i < q.n1; i++) {
+        group1.innerHTML += getObjectSVG(currentIcon);
+      }
+
+      const plus = document.createElement('span');
+      plus.className = 'operator';
+      plus.textContent = '➕';
+
+      const group2 = document.createElement('span');
+      group2.className = 'object-group';
+      for (let i = 0; i < q.n2; i++) {
+        group2.innerHTML += getObjectSVG(currentIcon);
+      }
+
+      const equals = document.createElement('span');
+      equals.className = 'operator';
+      equals.textContent = '= ❓';
+
+      container.appendChild(group1);
+      container.appendChild(plus);
+      container.appendChild(group2);
+      container.appendChild(equals);
+      area.appendChild(container);
     }
+
     document.getElementById('answerInput').value = '';
     document.getElementById('feedbackText').textContent = '';
     document.getElementById('feedbackText').className = 'feedback';
@@ -234,21 +478,20 @@
     document.getElementById('answerInput').focus();
   }
 
+  // ---------- Bentuk Lazim ----------
   function buildVertical(n1, n2) {
     const answer = n1 + n2;
     const resultLen = String(answer).length;
     const len1 = String(n1).length;
     const len2 = String(n2).length;
-    const totalWidth = resultLen + 1; // ruang untuk tanda '+'
+    const totalWidth = resultLen + 1;
 
-    // Baris nombor pertama
     const line1 = Array(totalWidth).fill(' ');
     const str1 = String(n1);
     for (let i = 0; i < len1; i++) {
       line1[resultLen - len1 + 1 + i] = str1[i];
     }
 
-    // Baris nombor kedua dengan '+'
     const line2 = Array(totalWidth).fill(' ');
     const str2 = String(n2);
     const plusIndex = resultLen - len2;
@@ -257,12 +500,11 @@
       line2[plusIndex + 1 + i] = str2[i];
     }
 
-    // Garis pemisah
     const line3 = '-'.repeat(totalWidth);
-
     return `${line1.join('')}\n${line2.join('')}\n${line3}`;
   }
 
+  // ---------- Semakan Jawapan ----------
   function checkAnswer() {
     const input = document.getElementById('answerInput');
     const userAnswer = Number(input.value);
@@ -270,7 +512,7 @@
     const feedback = document.getElementById('feedbackText');
 
     if (input.value.trim() === '' || isNaN(userAnswer)) {
-      feedback.textContent = 'Sila masukkan jawapan.';
+      feedback.textContent = '📝 Sila masukkan jawapan.';
       feedback.className = 'feedback wrong';
       return;
     }
@@ -278,23 +520,24 @@
     if (userAnswer === q.answer) {
       score += 10;
       document.getElementById('score').textContent = score;
-      feedback.textContent = '🎉 Tahniah! Jawapan anda betul.';
+      feedback.textContent = '🎉 Tahniah! Jawapan anda betul!';
       feedback.className = 'feedback correct';
+      launchConfetti();
     } else {
       feedback.textContent = `❌ Kurang tepat. Jawapan sebenar ialah ${q.answer}.`;
       feedback.className = 'feedback wrong';
     }
 
-    // Tunjukkan langkah pengiraan untuk soalan sukar (bentuk lazim dengan bawa)
     if (currentLevel === 'hard') {
       const steps = explainAddition(q.n1, q.n2);
-      feedback.textContent += ` ${steps}`;
+      feedback.innerHTML += `<br><small>${steps}</small>`;
     }
 
     document.getElementById('nextBtn').style.display = 'inline-block';
     input.blur();
   }
 
+  // ---------- Penerangan Bawa Ke Atas ----------
   function explainAddition(n1, n2) {
     const s1 = String(n1).split('').reverse();
     const s2 = String(n2).split('').reverse();
@@ -326,16 +569,42 @@
     return '🛠️ Cara kira: ' + steps.join('; ') + '.';
   }
 
+  // ---------- Confetti ----------
+  function launchConfetti() {
+    const colors = ['#f44336', '#e91e63', '#9c27b0', '#3f51b5', '#03a9f4', '#4caf50', '#ffeb3b', '#ff9800'];
+    for (let i = 0; i < 60; i++) {
+      const confetti = document.createElement('div');
+      confetti.className = 'confetti-piece';
+      confetti.style.left = Math.random() * 100 + 'vw';
+      confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+      confetti.style.width = (Math.random() * 8 + 5) + 'px';
+      confetti.style.height = (Math.random() * 8 + 5) + 'px';
+      document.body.appendChild(confetti);
+      setTimeout(() => confetti.remove(), 3000);
+    }
+  }
+
+  // ---------- Navigasi Soalan ----------
   function nextQuestion() {
     generateQuestion();
   }
 
-  // Benarkan tekan Enter untuk semak jawapan
+  // ---------- Event Listener untuk Enter ----------
   document.getElementById('answerInput').addEventListener('keypress', function(e) {
     if (e.key === 'Enter') {
       checkAnswer();
     }
   });
+
+  // ---------- PWA: Service Worker Registration ----------
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then(reg => console.log('Service Worker berjaya didaftarkan:', reg.scope))
+        .catch(err => console.warn('Pendaftaran SW gagal:', err));
+    });
+  }
 </script>
 </body>
 </html>
