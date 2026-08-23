@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Permainan Tambah Interaktif</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #eef2f7;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+    .game-card {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 600px;
+      text-align: center;
+    }
+    .screen {
+      display: none;
+    }
+    .screen.active {
+      display: block;
+    }
+    h1 {
+      color: #1e293b;
+      margin-bottom: 20px;
+    }
+    .score-board {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #334155;
+      margin-bottom: 20px;
+    }
+    .question-area {
+      background: #f8fafc;
+      border: 2px dashed #cbd5e1;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      min-height: 100px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .simple-question {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #1e293b;
+    }
+    .vertical-form {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 2rem;
+      font-weight: bold;
+      color: #1e293b;
+      text-align: left;
+      white-space: pre;
+      line-height: 1.3;
+    }
+    .input-group {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    input[type="number"] {
+      padding: 12px;
+      font-size: 1.5rem;
+      width: 150px;
+      text-align: center;
+      border: 2px solid #cbd5e1;
+      border-radius: 8px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input[type="number"]:focus {
+      border-color: #3b82f6;
+    }
+    button {
+      padding: 12px 20px;
+      font-size: 1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+    .submit-btn {
+      background: #3b82f6;
+      color: white;
+    }
+    .submit-btn:hover {
+      background: #2563eb;
+      transform: translateY(-2px);
+    }
+    .next-btn {
+      background: #10b981;
+      color: white;
+      display: none;
+      margin-top: 15px;
+    }
+    .next-btn:hover {
+      background: #0f9d6e;
+      transform: translateY(-2px);
+    }
+    .feedback {
+      font-size: 1.1rem;
+      font-weight: 600;
+      min-height: 30px;
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 8px;
+    }
+    .feedback.correct {
+      background: #ecfdf5;
+      color: #10b981;
+    }
+    .feedback.wrong {
+      background: #fef2f2;
+      color: #ef4444;
+    }
+    .level-btn {
+      background: #f1f5f9;
+      color: #1e293b;
+      margin: 5px;
+      border: 2px solid #cbd5e1;
+    }
+    .level-btn:hover {
+      background: #e2e8f0;
+      border-color: #94a3b8;
+    }
+    .back-btn {
+      background: #64748b;
+      color: white;
+      margin-top: 10px;
+    }
+    .back-btn:hover {
+      background: #475569;
+    }
+  </style>
+</head>
+<body>
+
+<div class="game-card">
+  <!-- Skrin Mula -->
+  <div id="startScreen" class="screen active">
+    <h1>🔢 Permainan Tambah Interaktif</h1>
+    <p>Pilih tahap kesukaran:</p>
+    <button class="level-btn" onclick="startLevel('easy')">Mudah (1–10)</button>
+    <button class="level-btn" onclick="startLevel('moderate')">Sederhana (1–20)</button>
+    <button class="level-btn" onclick="startLevel('hard')">Sukar (1–100, bentuk lazim)</button>
+  </div>
+
+  <!-- Skrin Permainan -->
+  <div id="gameScreen" class="screen">
+    <div class="score-board">
+      Tahap: <span id="levelLabel"></span> | Skor: <span id="score">0</span>
+    </div>
+    <div class="question-area" id="questionArea"></div>
+
+    <div class="input-group">
+      <input type="number" id="answerInput" placeholder="Jawapan" autofocus>
+      <button class="submit-btn" onclick="checkAnswer()">Semak</button>
+    </div>
+
+    <div class="feedback" id="feedbackText"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Soalan Seterusnya ➔</button>
+    <button class="back-btn" onclick="backToMenu()">Menu Utama</button>
+  </div>
+</div>
+
+<script>
+  let currentLevel = '';
+  let currentQuestion = null;
+  let score = 0;
+
+  function startLevel(level) {
+    currentLevel = level;
+    score = 0;
+    document.getElementById('score').textContent = score;
+    const levelNames = {
+      easy: 'Mudah (1–10)',
+      moderate: 'Sederhana (1–20)',
+      hard: 'Sukar (1–100)'
+    };
+    document.getElementById('levelLabel').textContent = levelNames[level];
+    document.getElementById('startScreen').classList.remove('active');
+    document.getElementById('gameScreen').classList.add('active');
+    generateQuestion();
+  }
+
+  function backToMenu() {
+    document.getElementById('gameScreen').classList.remove('active');
+    document.getElementById('startScreen').classList.add('active');
+    currentQuestion = null;
+    document.getElementById('feedbackText').textContent = '';
+    document.getElementById('feedbackText').className = 'feedback';
+    document.getElementById('nextBtn').style.display = 'none';
+  }
+
+  function generateQuestion() {
+    const maxSum = currentLevel === 'easy' ? 10 : currentLevel === 'moderate' ? 20 : 100;
+    let n1, n2;
+    do {
+      n1 = Math.floor(Math.random() * maxSum) + 1;
+      const maxN2 = Math.max(1, maxSum - n1);
+      n2 = Math.floor(Math.random() * maxN2) + 1;
+    } while (n1 + n2 > maxSum || n1 < 1 || n2 < 1);
+    currentQuestion = { n1, n2, answer: n1 + n2 };
+    renderQuestion();
+  }
+
+  function renderQuestion() {
+    const q = currentQuestion;
+    const area = document.getElementById('questionArea');
+    if (currentLevel === 'hard') {
+      area.innerHTML = `<pre class="vertical-form">${buildVertical(q.n1, q.n2)}</pre>`;
+    } else {
+      area.innerHTML = `<div class="simple-question">${q.n1} + ${q.n2} = ?</div>`;
+    }
+    document.getElementById('answerInput').value = '';
+    document.getElementById('feedbackText').textContent = '';
+    document.getElementById('feedbackText').className = 'feedback';
+    document.getElementById('nextBtn').style.display = 'none';
+    document.getElementById('answerInput').focus();
+  }
+
+  function buildVertical(n1, n2) {
+    const answer = n1 + n2;
+    const resultLen = String(answer).length;
+    const len1 = String(n1).length;
+    const len2 = String(n2).length;
+    const totalWidth = resultLen + 1; // ruang untuk tanda '+'
+
+    // Baris nombor pertama
+    const line1 = Array(totalWidth).fill(' ');
+    const str1 = String(n1);
+    for (let i = 0; i < len1; i++) {
+      line1[resultLen - len1 + 1 + i] = str1[i];
+    }
+
+    // Baris nombor kedua dengan '+'
+    const line2 = Array(totalWidth).fill(' ');
+    const str2 = String(n2);
+    const plusIndex = resultLen - len2;
+    line2[plusIndex] = '+';
+    for (let i = 0; i < len2; i++) {
+      line2[plusIndex + 1 + i] = str2[i];
+    }
+
+    // Garis pemisah
+    const line3 = '-'.repeat(totalWidth);
+
+    return `${line1.join('')}\n${line2.join('')}\n${line3}`;
+  }
+
+  function checkAnswer() {
+    const input = document.getElementById('answerInput');
+    const userAnswer = Number(input.value);
+    const q = currentQuestion;
+    const feedback = document.getElementById('feedbackText');
+
+    if (input.value.trim() === '' || isNaN(userAnswer)) {
+      feedback.textContent = 'Sila masukkan jawapan.';
+      feedback.className = 'feedback wrong';
+      return;
+    }
+
+    if (userAnswer === q.answer) {
+      score += 10;
+      document.getElementById('score').textContent = score;
+      feedback.textContent = '🎉 Tahniah! Jawapan anda betul.';
+      feedback.className = 'feedback correct';
+    } else {
+      feedback.textContent = `❌ Kurang tepat. Jawapan sebenar ialah ${q.answer}.`;
+      feedback.className = 'feedback wrong';
+    }
+
+    // Tunjukkan langkah pengiraan untuk soalan sukar (bentuk lazim dengan bawa)
+    if (currentLevel === 'hard') {
+      const steps = explainAddition(q.n1, q.n2);
+      feedback.textContent += ` ${steps}`;
+    }
+
+    document.getElementById('nextBtn').style.display = 'inline-block';
+    input.blur();
+  }
+
+  function explainAddition(n1, n2) {
+    const s1 = String(n1).split('').reverse();
+    const s2 = String(n2).split('').reverse();
+    let carry = 0;
+    const placeNames = ['sa', 'puluh', 'ratus'];
+    const steps = [];
+    const maxLen = Math.max(s1.length, s2.length);
+
+    for (let i = 0; i < maxLen || carry > 0; i++) {
+      const d1 = i < s1.length ? parseInt(s1[i], 10) : 0;
+      const d2 = i < s2.length ? parseInt(s2[i], 10) : 0;
+      const total = d1 + d2 + carry;
+      const digit = total % 10;
+      const newCarry = Math.floor(total / 10);
+      const place = placeNames[i] || `tempat ${i + 1}`;
+
+      let step = `${place}: ${d1} + ${d2}`;
+      if (carry > 0) step += ` + ${carry} (bawa)`;
+      step += ` = ${total}`;
+      if (newCarry > 0) {
+        step += `, tulis ${digit}, bawa ${newCarry}`;
+      } else {
+        step += `, tulis ${digit}`;
+      }
+      steps.push(step);
+      carry = newCarry;
+    }
+
+    return '🛠️ Cara kira: ' + steps.join('; ') + '.';
+  }
+
+  function nextQuestion() {
+    generateQuestion();
+  }
+
+  // Benarkan tekan Enter untuk semak jawapan
+  document.getElementById('answerInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      checkAnswer();
+    }
+  });
+</script>
+</body>
+</html>
