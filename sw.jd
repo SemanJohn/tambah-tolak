@@ -1,19 +1,41 @@
-const CACHE_NAME = 'permainan-tambah-v1';
-const urlsToCache = [
-  './',
-  './index.html'
-];
+const CACHE_NAME = 'permainan-tambah-v2'; // naikkan versi setiap kali kemas kini
 
 self.addEventListener('install', event => {
+  self.skipWaiting(); // aktifkan service worker baru serta-merta
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(urlsToCache))
+    caches.open(CACHE_NAME).then(cache => {
+      return cache.addAll(['./', './index.html']);
+    })
   );
 });
 
-self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request)
-      .then(response => response || fetch(event.request))
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(keys => {
+      return Promise.all(
+        keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
+      );
+    })
   );
+  return self.clients.claim(); // kawal semua tab sedia ada
+});
+
+self.addEventListener('fetch', event => {
+  // Untuk navigasi halaman, cuba rangkaian dahulu, fallback ke cache
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put('./index.html', clone));
+          return response;
+        })
+        .catch(() => caches.match('./index.html'))
+    );
+  } else {
+    // Untuk aset lain, cache-first
+    event.respondWith(
+      caches.match(event.request).then(response => response || fetch(event.request))
+    );
+  }
 });
