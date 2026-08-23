@@ -1,4 +1,4 @@
-const CACHE_NAME = 'permainan-tambah-v1.2'; // Naikkan versi ini setiap kali kemas kini
+const CACHE_NAME = 'permainan-tambah-v1.3';
 
 const urlsToCache = [
   './',
