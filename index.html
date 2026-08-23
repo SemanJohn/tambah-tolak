@@ -144,7 +144,7 @@ body {
 </head>
 <body>
 <div class="game-container">
-  <div class="version-label" id="versionLabel">Versi 2.0</div>
+  <div class="version-label" id="versionLabel">Versi 2.1</div>
 
   <div id="menuSection" class="section active">
     <div class="menu-mascot">
@@ -364,10 +364,9 @@ function updateActionButton() {
 
   if (step.col === extraCol) { btn.textContent = '✔ Semak'; return; }
 
-  // Lajur jawapan terakhir: 'Semak' melainkan murid taip jumlah 2 digit (ada bawa)
+  // Lajur jawapan terakhir: 'Semak' melainkan lajur itu ada lebihan untuk dibawa
   if (step.col === baseCols - 1) {
-    const hasCarry = (answerCells[step.col].value || '').trim().length > 1;
-    btn.textContent = hasCarry ? 'Seterusnya ➔' : '✔ Semak';
+    btn.textContent = needsCarryBox(step.col) ? 'Seterusnya ➔' : '✔ Semak';
     return;
   }
   btn.textContent = 'Seterusnya ➔';
@@ -379,11 +378,11 @@ function updateHint() {
   const step = currentStep();
   if (!step) { el.textContent = ''; return; }
   if (step.type === 'carry') {
-    el.textContent = `Kotak bawa ${placeName(step.col)}: semak atau betulkan nombor yang dibawa.`;
+    el.textContent = `Kotak bawa ${placeName(step.col)}: isi nombor lebihan yang dibawa dari lajur kanan.`;
   } else if (step.col === extraCol) {
     el.textContent = `Lajur ${placeName(step.col)}: turunkan nombor bawa ke sini.`;
   } else {
-    el.textContent = `Lajur ${placeName(step.col)}: taip jumlah lajur ini. Taip 2 digit (cth 14) jika ada lebihan untuk dibawa.`;
+    el.textContent = `Lajur ${placeName(step.col)}: tulis digit jawapan. Kotak bawa akan muncul jika lajur ini ada lebihan.`;
   }
 }
 
@@ -598,9 +597,10 @@ function handleAction() {
 
   const nextCol = step.col + 1;
 
-  if (carryValue > 0) {
-    // Ada lebihan → buka kotak bawa dan isikan cadangan
-    carryCells[nextCol].value = String(carryValue);
+  if (needsCarryBox(step.col)) {
+    // Ada lebihan → buka kotak bawa. Diisi automatik jika murid taip jumlah penuh,
+    // dibiar kosong jika murid taip digit sahaja (murid isi sendiri).
+    carryCells[nextCol].value = carryValue > 0 ? String(carryValue) : '';
     goToStep({ type: 'carry', col: nextCol });
     return;
   }
@@ -614,6 +614,21 @@ function handleAction() {
   } else {
     checkAnswer();   // lajur terakhir, tiada bawa → terus semak
   }
+}
+
+// Jumlah sebenar sesuatu lajur, mengikut nombor bawa yang murid sendiri tulis
+function columnSum(col) {
+  const d1 = parseInt(op1Digits[col] || '0', 10) || 0;
+  const d2 = parseInt(op2Digits[col] || '0', 10) || 0;
+  const carryIn = parseInt((carryCells[col].value || '').trim(), 10) || 0;
+  return d1 + d2 + carryIn;
+}
+
+// Kotak bawa diwujudkan jika lajur itu memang melebihi 9,
+// atau jika murid sendiri menaip jumlah 2 digit.
+function needsCarryBox(col) {
+  const typed = (answerCells[col].value || '').trim();
+  return typed.length > 1 || columnSum(col) >= 10;
 }
 
 function goToStep(step) {
