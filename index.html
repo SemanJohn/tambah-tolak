@@ -11,10 +11,11 @@ body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   justify-content: center;
-  align-items: center;
-  padding: 10px;
+  align-items: stretch;
+  padding: 8px;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
@@ -24,10 +25,12 @@ body {
   box-shadow: 0 20px 40px rgba(0,0,0,0.2);
   width: 100%;
   max-width: 480px;
-  padding: 20px 15px;
+  padding: 24px 15px 15px;
   text-align: center;
   position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 .version-label {
   position: absolute;
@@ -36,7 +39,10 @@ body {
   z-index: 10; pointer-events: none;
 }
 .section { display: none; }
-.section.active { display: block; animation: fadeIn 0.25s ease; }
+.section.active { display: flex; flex-direction: column; flex: 1; min-height: 0; animation: fadeIn 0.25s ease; }
+/* Menu: kandungan di tengah; permainan: kawasan soalan mengembang, papan kekunci ke bawah */
+#menuSection.active, #basicSection.active, #plusSection.active { justify-content: center; }
+#gameSection .question-area { flex: 1; }
 @keyframes fadeIn { from { opacity:0; transform:translateY(10px);} to { opacity:1; transform:translateY(0);} }
 .menu-mascot { width: 80px; height: 80px; margin: 0 auto 10px; animation: bounce 2s infinite; }
 @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
@@ -76,14 +82,15 @@ body {
 .mode-toggle:active { transform:scale(0.94); }
 .mode-toggle.number-mode { background:#eef2ff; border-color:#4f46e5; }
 /* Paparan nombor untuk aras mudah & sederhana */
-.number-question { font-size:2.2rem; font-weight:800; color:#1e293b; display:flex; align-items:center; gap:12px; flex-wrap:wrap; justify-content:center; }
+.number-question { font-size:2.6rem; font-weight:800; color:#1e293b; display:flex; align-items:center; gap:12px; flex-wrap:wrap; justify-content:center; }
 .question-area {
-  background:#f8fafc; border:2px dashed #cbd5e1; border-radius:16px; padding:15px 8px;
-  margin-bottom:10px; min-height:100px; display:flex; justify-content:center; align-items:center; flex-wrap:wrap;
+  background:#f8fafc; border:2px dashed #cbd5e1; border-radius:16px; padding:12px 10px;
+  margin-bottom:10px; min-height:120px; display:flex; justify-content:center; align-items:center;
+  overflow:hidden;
 }
-.simple-question { font-size:1.6rem; font-weight:700; color:#1e293b; display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:center; }
-.object-group { display:inline-flex; gap:3px; align-items:center; }
-.object-icon { width:25px; height:25px; }
+.simple-question { font-size:1.6rem; font-weight:700; color:#1e293b; display:flex; align-items:center; gap:10px; justify-content:center; width:100%; }
+.object-group { display:flex; flex-wrap:wrap; gap:4px; align-items:center; justify-content:center; flex:0 1 auto; min-width:0; }
+.object-icon { width:var(--icon, 28px); height:var(--icon, 28px); flex:none; }
 .operator { font-size:1.5rem; color:#f59e0b; font-weight:bold; }
 .answer-inline-input {
   width:70px; height:50px; font-size:1.6rem; text-align:center; border:3px solid #cbd5e1; border-radius:10px;
@@ -119,7 +126,7 @@ body {
 .plus-cell { font-size:1.5rem; color:#1e293b; user-select:none; }
 .line-row { border-top:3px solid #1e293b; margin:5px 0; }
 .carry-row-spacer { width:var(--cw); height:calc(var(--ch) * 0.75); }
-.numpad { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-bottom:10px; }
+.numpad { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; margin-bottom:10px; flex:none; }
 .numpad-btn {
   background:linear-gradient(135deg,#e0e7ff 0%,#c7d2fe 100%); color:#1e293b; border:1px solid #a5b4fc;
   padding:8px 0; font-size:1.3rem; font-weight:bold; border-radius:8px; cursor:pointer;
@@ -139,10 +146,11 @@ body {
   width:100%; padding:12px; border:none; border-radius:12px; font-size:1rem; font-weight:bold;
   cursor:pointer; box-shadow:0 4px 12px rgba(16,185,129,0.4);
 }
-.back-btn { background:#64748b; color:white; border:none; padding:10px; font-size:0.9rem; border-radius:10px; cursor:pointer; margin-top:10px; width:100%; }
+.back-btn { background:#64748b; color:white; border:none; padding:10px; font-size:0.9rem; border-radius:10px; cursor:pointer; margin-top:8px; width:100%; flex:none; }
 .back-btn:active { background:#475569; }
-.hint-line { font-size:0.8rem; color:#64748b; margin-bottom:8px; min-height:18px; }
-.feedback { font-size:1rem; font-weight:600; min-height:30px; margin-top:10px; padding:10px; border-radius:10px; transition:all 0.3s; }
+.hint-line { font-size:0.8rem; color:#64748b; margin-bottom:8px; min-height:18px; flex:none; }
+.feedback { font-size:1rem; font-weight:600; min-height:0; margin-top:8px; padding:0; border-radius:10px; transition:all 0.3s; }
+.feedback.correct, .feedback.wrong { padding:10px; }
 .feedback.correct { background:#ecfdf5; color:#065f46; border:2px solid #10b981; animation:pop 0.3s ease; }
 .feedback.wrong { background:#fef2f2; color:#991b1b; border:2px solid #ef4444; animation:shake 0.3s ease; }
 @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
@@ -164,7 +172,7 @@ body {
 </head>
 <body>
 <div class="game-container">
-  <div class="version-label" id="versionLabel">Versi 3.0</div>
+  <div class="version-label" id="versionLabel">Versi 3.1</div>
 
   <div id="menuSection" class="section active">
     <div class="menu-mascot">
@@ -603,10 +611,18 @@ function renderQuestion() {
     currentIcon = icons[Math.floor(Math.random() * icons.length)];
     const container = document.createElement('div');
     container.className = 'simple-question';
+    // Saiz ikon dikecilkan apabila objek bertambah supaya kekal dalam kotak soalan
+    const total = q.n1 + q.n2;
+    const iconSize = total <= 6 ? 46 : total <= 10 ? 38 : total <= 15 ? 32 : 26;
+    container.style.setProperty('--icon', iconSize + 'px');
+    // Setiap kumpulan diberi lebar mengikut bilangan objeknya
+    const share = n => Math.max(18, Math.round((n / total) * 62));
     const g1 = document.createElement('span'); g1.className = 'object-group';
+    g1.style.maxWidth = share(q.n1) + '%';
     for (let i = 0; i < q.n1; i++) g1.innerHTML += getObjectSVG(currentIcon);
     const plus = document.createElement('span'); plus.className = 'operator'; plus.textContent = '➕';
     const g2 = document.createElement('span'); g2.className = 'object-group';
+    g2.style.maxWidth = share(q.n2) + '%';
     for (let i = 0; i < q.n2; i++) g2.innerHTML += getObjectSVG(currentIcon);
     const eq = document.createElement('span'); eq.className = 'operator'; eq.textContent = '=';
     container.append(g1, plus, g2, eq, inline);
