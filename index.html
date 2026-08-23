@@ -144,7 +144,7 @@ body {
 </head>
 <body>
 <div class="game-container">
-  <div class="version-label" id="versionLabel">Versi 1.9</div>
+  <div class="version-label" id="versionLabel">Versi 2.0</div>
 
   <div id="menuSection" class="section active">
     <div class="menu-mascot">
@@ -227,8 +227,8 @@ let carryCells = [];
 let op1Digits = [], op2Digits = [];
 let expectedDigits = [];   // digit jawapan setiap lajur
 let expectedCarry = [];    // bawa masuk ke setiap lajur
-let steps = [];            // turutan kotak: jawapan sa → bawa puluh → jawapan puluh → ...
-let stepIndex = 0;
+let steps = [];            // simpanan turutan penuh (rujukan sahaja)
+let trail = [];            // laluan sebenar murid: kotak yang telah dibuka
 
 const PLACE_NAMES = ['sa', 'puluh', 'ratus', 'ribu'];
 function placeName(col) { return PLACE_NAMES[col] || `tempat ${col + 1}`; }
@@ -278,7 +278,7 @@ function setActiveInput(el) {
   updateHint();
 }
 
-function currentStep() { return steps[stepIndex]; }
+function currentStep() { return trail[trail.length - 1]; }
 
 function fieldOf(step) {
   return step.type === 'carry' ? carryCells[step.col] : answerCells[step.col];
@@ -316,26 +316,30 @@ function pressBackspace() {
 }
 
 function goToPreviousStep() {
-  if (stepIndex <= 0) return;
-  const leaving = fieldOf(currentStep());
-  leaving.value = '';
-  leaving.classList.add('col-hidden');
-  stepIndex--;
+  if (trail.length <= 1) return;
+  const leaving = trail.pop();
+  const field = fieldOf(leaving);
+  field.value = '';
+  field.classList.add('col-hidden');
   setActiveInput(fieldOf(currentStep()));
 }
 
 function clearAnswer() {
   if (locked) return;
   if (currentLevel === 'hard') {
-    steps.forEach((s, i) => {
-      const f = fieldOf(s);
+    answerCells.forEach((f, col) => {
       f.value = '';
       f.classList.remove('col-wrong', 'col-right');
-      if (i > 0) f.classList.add('col-hidden');
+      if (col !== 0) f.classList.add('col-hidden');
     });
-    stepIndex = 0;
+    carryCells.forEach(f => {
+      f.value = '';
+      f.classList.remove('col-wrong', 'col-right');
+      f.classList.add('col-hidden');
+    });
+    trail = [{ type: 'answer', col: 0 }];
     setFeedback('', '');
-    setActiveInput(fieldOf(steps[0]));
+    setActiveInput(answerCells[0]);
   } else {
     const inline = document.querySelector('.answer-inline-input');
     if (inline) { inline.value = ''; setActiveInput(inline); }
@@ -347,10 +351,23 @@ function updateActionButton() {
   if (currentLevel !== 'hard') { btn.textContent = '✔ Semak'; return; }
   const step = currentStep();
   if (!step) { btn.textContent = '✔ Semak'; return; }
-  if (step.type === 'answer' && step.col === extraCol) { btn.textContent = '✔ Semak'; return; }
-  if (step.type === 'carry' && step.col === extraCol) {
-    const v = parseInt(carryCells[extraCol].value, 10);
-    btn.textContent = v > 0 ? 'Seterusnya ➔' : '✔ Semak';
+
+  if (step.type === 'carry') {
+    if (step.col === extraCol) {
+      const v = parseInt(carryCells[extraCol].value, 10);
+      btn.textContent = v > 0 ? 'Seterusnya ➔' : '✔ Semak';
+    } else {
+      btn.textContent = 'Seterusnya ➔';
+    }
+    return;
+  }
+
+  if (step.col === extraCol) { btn.textContent = '✔ Semak'; return; }
+
+  // Lajur jawapan terakhir: 'Semak' melainkan murid taip jumlah 2 digit (ada bawa)
+  if (step.col === baseCols - 1) {
+    const hasCarry = (answerCells[step.col].value || '').trim().length > 1;
+    btn.textContent = hasCarry ? 'Seterusnya ➔' : '✔ Semak';
     return;
   }
   btn.textContent = 'Seterusnya ➔';
@@ -362,11 +379,11 @@ function updateHint() {
   const step = currentStep();
   if (!step) { el.textContent = ''; return; }
   if (step.type === 'carry') {
-    el.textContent = `Kotak bawa ${placeName(step.col)}: isi nombor yang dibawa, atau biar kosong jika tiada.`;
+    el.textContent = `Kotak bawa ${placeName(step.col)}: semak atau betulkan nombor yang dibawa.`;
   } else if (step.col === extraCol) {
     el.textContent = `Lajur ${placeName(step.col)}: turunkan nombor bawa ke sini.`;
   } else {
-    el.textContent = `Lajur ${placeName(step.col)}: taip jumlah lajur ini (boleh taip terus 11 atau taip 1 sahaja).`;
+    el.textContent = `Lajur ${placeName(step.col)}: taip jumlah lajur ini. Taip 2 digit (cth 14) jika ada lebihan untuk dibawa.`;
   }
 }
 
@@ -392,7 +409,7 @@ function generateQuestion() {
   locked = false;
   setFeedback('', '');
   document.getElementById('nextBtn').style.display = 'none';
-  answerCells = []; carryCells = []; steps = []; stepIndex = 0;
+  answerCells = []; carryCells = []; steps = []; trail = [];
   activeInput = null;
   renderQuestion();
 }
@@ -514,7 +531,7 @@ function buildVerticalForm(n1, n2) {
   }
   form.appendChild(aRow);
 
-  // --- Turutan kotak: jawapan sa → bawa puluh → jawapan puluh → ... → bawa lajur tambahan → jawapan lajur tambahan ---
+  // Kotak bawa hanya dibuka apabila murid menaip jumlah 2 digit pada lajur berkenaan
   steps = [];
   for (let col = 0; col < baseCols; col++) {
     steps.push({ type: 'answer', col });
@@ -522,19 +539,24 @@ function buildVerticalForm(n1, n2) {
   }
   steps.push({ type: 'answer', col: extraCol });
 
-  stepIndex = 0;
+  trail = [{ type: 'answer', col: 0 }];
   setActiveInput(answerCells[0]);
   return form;
 }
 
-// Klik pada mana-mana kotak yang sudah dibuka
+// Klik pada mana-mana kotak yang sudah dibuka (kotak selepasnya akan ditutup semula)
 function focusField(input) {
   if (locked) return;
   const type = input.dataset.type;
   const col = Number(input.dataset.col);
-  const idx = steps.findIndex(s => s.type === type && s.col === col);
-  if (idx === -1 || idx > stepIndex) return;
-  stepIndex = idx;
+  const idx = trail.findIndex(s => s.type === type && s.col === col);
+  if (idx === -1) return;
+  while (trail.length - 1 > idx) {
+    const dropped = trail.pop();
+    const f = fieldOf(dropped);
+    f.value = '';
+    f.classList.add('col-hidden');
+  }
   setActiveInput(input);
 }
 
@@ -547,38 +569,56 @@ function handleAction() {
   const field = fieldOf(step);
   const raw = (field.value || '').trim();
 
-  // Kotak jawapan lajur tambahan → terus semak
-  if (step.type === 'answer' && step.col === extraCol) {
+  // --- Kotak bawa ---
+  if (step.type === 'carry') {
+    if (step.col === extraCol) {
+      const v = parseInt(raw, 10);
+      if (raw === '' || v === 0) { checkAnswer(); return; }   // tiada bawa akhir
+      goToStep({ type: 'answer', col: extraCol });            // buka lajur tambahan
+      return;
+    }
+    goToStep({ type: 'answer', col: step.col });              // teruskan ke lajur jawapan
+    return;
+  }
+
+  // --- Kotak jawapan lajur tambahan ---
+  if (step.col === extraCol) {
     if (raw === '') { setFeedback('📝 Isi digit lajur ' + placeName(extraCol) + ' dahulu.', 'wrong'); return; }
     checkAnswer();
     return;
   }
 
-  // Kotak bawa lajur tambahan → kalau ada nilai, buka kotak jawapan; kalau kosong, semak
-  if (step.type === 'carry' && step.col === extraCol) {
-    const v = parseInt(raw, 10);
-    if (raw === '' || v === 0) { checkAnswer(); return; }
-    advanceTo(stepIndex + 1);
+  // --- Kotak jawapan lajur biasa ---
+  if (raw === '') { setFeedback('📝 Taip jawapan lajur ' + placeName(step.col) + ' dahulu.', 'wrong'); return; }
+
+  const written = raw.slice(-1);
+  const carryPart = raw.length > 1 ? raw.slice(0, -1) : '';
+  const carryValue = carryPart ? parseInt(carryPart, 10) : 0;
+  field.value = written;
+
+  const nextCol = step.col + 1;
+
+  if (carryValue > 0) {
+    // Ada lebihan → buka kotak bawa dan isikan cadangan
+    carryCells[nextCol].value = String(carryValue);
+    goToStep({ type: 'carry', col: nextCol });
     return;
   }
 
-  // Kotak bawa biasa → boleh kosong (bermakna tiada bawa)
-  if (step.type === 'carry') { advanceTo(stepIndex + 1); return; }
+  // Tiada lebihan → kotak bawa langsung tidak dibuka
+  carryCells[nextCol].value = '';
+  carryCells[nextCol].classList.add('col-hidden');
 
-  // Kotak jawapan lajur biasa
-  if (raw === '') { setFeedback('📝 Taip jawapan lajur ' + placeName(step.col) + ' dahulu.', 'wrong'); return; }
-  const written = raw.slice(-1);
-  const carryPart = raw.length > 1 ? raw.slice(0, -1) : '';
-  field.value = written;                       // hanya digit terakhir tinggal di bawah garis
-  const nextStep = steps[stepIndex + 1];       // sentiasa kotak bawa lajur kiri
-  const carryBox = carryCells[nextStep.col];
-  if (carryPart && parseInt(carryPart, 10) > 0) carryBox.value = carryPart; // cadangan automatik
-  advanceTo(stepIndex + 1);
+  if (nextCol < baseCols) {
+    goToStep({ type: 'answer', col: nextCol });
+  } else {
+    checkAnswer();   // lajur terakhir, tiada bawa → terus semak
+  }
 }
 
-function advanceTo(idx) {
-  stepIndex = idx;
-  const field = fieldOf(currentStep());
+function goToStep(step) {
+  trail.push(step);
+  const field = fieldOf(step);
   field.classList.remove('col-hidden');
   setFeedback('', '');
   setActiveInput(field);
