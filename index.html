@@ -57,6 +57,17 @@ body {
   display:flex; justify-content:space-between; align-items:center;
   background:#eef2ff; padding:8px 12px; border-radius:10px;
 }
+.board-right { display:flex; align-items:center; gap:6px; }
+#levelLabel { background:white; padding:4px 10px; border-radius:8px; font-size:0.85rem; }
+.mode-toggle {
+  border:2px solid #a5b4fc; background:white; color:#4f46e5; font-weight:bold; font-size:0.8rem;
+  padding:5px 10px; border-radius:8px; cursor:pointer; white-space:nowrap;
+  transition:background 0.2s, transform 0.15s;
+}
+.mode-toggle:active { transform:scale(0.94); }
+.mode-toggle.number-mode { background:#eef2ff; border-color:#4f46e5; }
+/* Paparan nombor untuk aras mudah & sederhana */
+.number-question { font-size:2.2rem; font-weight:800; color:#1e293b; display:flex; align-items:center; gap:12px; flex-wrap:wrap; justify-content:center; }
 .question-area {
   background:#f8fafc; border:2px dashed #cbd5e1; border-radius:16px; padding:15px 8px;
   margin-bottom:10px; min-height:100px; display:flex; justify-content:center; align-items:center; flex-wrap:wrap;
@@ -144,7 +155,7 @@ body {
 </head>
 <body>
 <div class="game-container">
-  <div class="version-label" id="versionLabel">Versi 2.1</div>
+  <div class="version-label" id="versionLabel">Versi 2.2</div>
 
   <div id="menuSection" class="section active">
     <div class="menu-mascot">
@@ -171,7 +182,10 @@ body {
   <div id="gameSection" class="section">
     <div class="score-board">
       <span>🏆 Skor: <span id="score">0</span></span>
-      <span id="levelLabel" style="background:white; padding:4px 10px; border-radius:8px;"></span>
+      <span class="board-right">
+        <span id="levelLabel"></span>
+        <button id="modeToggle" class="mode-toggle" onclick="toggleDisplayMode()">🎈 Gambar</button>
+      </span>
     </div>
     <div class="question-area" id="questionArea"></div>
     <div class="hint-line" id="hintLine"></div>
@@ -216,6 +230,7 @@ let score = 0;
 let scoredCorrect = false;
 const icons = ['apple', 'star', 'car', 'balloon'];
 let currentIcon = 'apple';
+let displayMode = 'gambar';   // 'gambar' atau 'nombor' (aras mudah & sederhana sahaja)
 let activeInput = null;
 let locked = false;
 
@@ -246,6 +261,8 @@ function startLevel(level) {
   document.getElementById('score').textContent = score;
   const names = { easy: '🌱 Mudah (1–10)', moderate: '🚀 Sederhana (1–20)', hard: '🧠 Bentuk lazim' };
   document.getElementById('levelLabel').textContent = names[level];
+  document.getElementById('modeToggle').style.display = (level === 'hard') ? 'none' : 'inline-block';
+  updateModeToggle();
   showSection('gameSection');
   generateQuestion();
 }
@@ -258,6 +275,32 @@ function backToMenu() {
   document.getElementById('nextBtn').style.display = 'none';
   if (activeInput) activeInput.blur();
   activeInput = null;
+}
+
+function updateModeToggle() {
+  const btn = document.getElementById('modeToggle');
+  if (displayMode === 'gambar') {
+    btn.textContent = '🎈 Gambar';
+    btn.classList.remove('number-mode');
+    btn.title = 'Tukar ke paparan nombor';
+  } else {
+    btn.textContent = '🔢 Nombor';
+    btn.classList.add('number-mode');
+    btn.title = 'Tukar ke paparan gambar';
+  }
+}
+
+// Tukar paparan tanpa menukar soalan — jawapan yang sudah ditaip dikekalkan
+function toggleDisplayMode() {
+  if (currentLevel === 'hard') return;
+  displayMode = (displayMode === 'gambar') ? 'nombor' : 'gambar';
+  updateModeToggle();
+  if (!currentQuestion) return;
+  const previous = document.querySelector('.answer-inline-input');
+  const kept = previous ? previous.value : '';
+  renderQuestion();
+  const fresh = document.querySelector('.answer-inline-input');
+  if (fresh && !locked) fresh.value = kept;
 }
 
 function setFeedback(text, kind, asHtml) {
@@ -444,21 +487,34 @@ function renderQuestion() {
   }
 
   document.getElementById('hintLine').textContent = '';
-  currentIcon = icons[Math.floor(Math.random() * icons.length)];
-  const container = document.createElement('div');
-  container.className = 'simple-question';
-  const g1 = document.createElement('span'); g1.className = 'object-group';
-  for (let i = 0; i < q.n1; i++) g1.innerHTML += getObjectSVG(currentIcon);
-  const plus = document.createElement('span'); plus.className = 'operator'; plus.textContent = '➕';
-  const g2 = document.createElement('span'); g2.className = 'object-group';
-  for (let i = 0; i < q.n2; i++) g2.innerHTML += getObjectSVG(currentIcon);
-  const eq = document.createElement('span'); eq.className = 'operator'; eq.textContent = '=';
   const inline = document.createElement('input');
   inline.type = 'text'; inline.inputMode = 'none'; inline.maxLength = 3;
   inline.className = 'answer-inline-input'; inline.placeholder = '?'; inline.readOnly = true;
   inline.addEventListener('click', () => setActiveInput(inline));
-  container.append(g1, plus, g2, eq, inline);
-  area.appendChild(container);
+
+  if (displayMode === 'nombor') {
+    const box = document.createElement('div');
+    box.className = 'number-question';
+    const a = document.createElement('span'); a.textContent = q.n1;
+    const plus = document.createElement('span'); plus.className = 'operator'; plus.textContent = '➕';
+    const b = document.createElement('span'); b.textContent = q.n2;
+    const eq = document.createElement('span'); eq.className = 'operator'; eq.textContent = '=';
+    box.append(a, plus, b, eq, inline);
+    area.appendChild(box);
+  } else {
+    currentIcon = icons[Math.floor(Math.random() * icons.length)];
+    const container = document.createElement('div');
+    container.className = 'simple-question';
+    const g1 = document.createElement('span'); g1.className = 'object-group';
+    for (let i = 0; i < q.n1; i++) g1.innerHTML += getObjectSVG(currentIcon);
+    const plus = document.createElement('span'); plus.className = 'operator'; plus.textContent = '➕';
+    const g2 = document.createElement('span'); g2.className = 'object-group';
+    for (let i = 0; i < q.n2; i++) g2.innerHTML += getObjectSVG(currentIcon);
+    const eq = document.createElement('span'); eq.className = 'operator'; eq.textContent = '=';
+    container.append(g1, plus, g2, eq, inline);
+    area.appendChild(container);
+  }
+
   setActiveInput(inline);
 }
 
