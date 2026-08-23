@@ -1,6 +1,6 @@
 // sw.js — Permainan Tambah Ceria
 // PENTING: tukar CACHE_VERSION setiap kali index.html dikemas kini.
-const CACHE_VERSION = 'v1.9';
+const CACHE_VERSION = 'v2.0';
 const CACHE_NAME = `tambah-ceria-${CACHE_VERSION}`;
 
 const PRECACHE_URLS = [
